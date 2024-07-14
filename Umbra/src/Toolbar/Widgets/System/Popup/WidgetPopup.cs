@@ -116,7 +116,7 @@ public abstract class WidgetPopup
         // Calculate the position based on the anchor.
         float windowX     = actX - (width / 2);
         float windowY     = Toolbar.IsTopAligned ? tBounds.Y2 - 2 : tBounds.Y1 + 2;
-        float screenWidth = ImGui.GetMainViewport().WorkSize.X;
+        float screenWidth = ImGui.GetMainViewport().WorkSize.X + 1920;
         float deltaTime   = ImGui.GetIO().DeltaTime * 10;
 
         if (!Toolbar.IsTopAligned) {

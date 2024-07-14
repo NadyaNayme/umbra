@@ -22,6 +22,7 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Umbra.Common;
+using static System.Windows.Forms.Screen;
 
 namespace Umbra.Windows.Clipping;
 

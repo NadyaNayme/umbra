@@ -44,8 +44,8 @@ internal sealed class GameCamera : IGameCamera
         _lookAtVector   = cmPtr->CurrentCamera->LookAtVector;
         _cameraPosition = cmPtr->CurrentCamera->Position;
 
-        bool isInViewport = screenPos.X >= 0
-            && screenPos.X <= ImGui.GetIO().DisplaySize.X
+        bool isInViewport = screenPos.X + 1920 >= 0
+            && screenPos.X <= ImGui.GetIO().DisplaySize.X + 1920
             && screenPos.Y >= 0
             && screenPos.Y <= ImGui.GetIO().DisplaySize.Y;
 

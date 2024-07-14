@@ -82,7 +82,7 @@ internal class WorldMarkerRenderer(
             node.AddMarker(marker);
             node.SetDistance(distance);
 
-            _positions[node] = new((int)screenPosition.X, (int)screenPosition.Y);
+            _positions[node] = new((int)screenPosition.X + 1920, (int)screenPosition.Y);
         }
 
         foreach (WorldMarkerNode node in _nodes.Values.ToList()) {

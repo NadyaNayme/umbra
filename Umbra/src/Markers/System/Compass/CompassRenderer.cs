@@ -59,8 +59,10 @@ internal partial class CompassRenderer(
         float   clampSize = iconSize * 2.5f;
         uint    iconColor = (0xFFFFFFFFu).ApplyAlphaComponent(IconOpacity / 100f);
         Vector2 vpSize    = ImGui.GetMainViewport().Size;
+        vpSize.X = ImGui.GetMainViewport().Size.X + 1920;
 
         if (!gameCamera.WorldToScreen(player.Position, out Vector2 playerScreenPosition)) return;
+        playerScreenPosition.X += 1920;
 
         foreach (var marker in registry.GetMarkers()) {
             if (!marker.ShowOnCompass) continue;
@@ -70,7 +72,6 @@ internal partial class CompassRenderer(
             // Skip rendering if the marker itself is in view.
             if (gameCamera.WorldToScreen(pos, out Vector2 markerScreenPosition))
                 continue;
-
             Vector2 direction = Vector2.Normalize(gameCamera.IsInFrontOfCamera(pos) ? markerScreenPosition - playerScreenPosition : playerScreenPosition - markerScreenPosition);
             Vector2 iconPos   = playerScreenPosition + direction * CompassRadius;
 
