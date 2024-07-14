@@ -14,23 +14,30 @@
  *     GNU Affero General Public License for more details.
  */
 
+using Dalamud.Plugin.Services;
 using Umbra.Common;
-using Umbra.Game;
+using Una.Drawing;
 
-namespace Umbra;
+namespace Umbra.Widgets;
 
-[Service]
-internal partial class Toolbar(IPlayer player, UmbraVisibility visibility)
+internal partial class TeleportWidgetPopup : WidgetPopup
 {
-    [OnDraw(executionOrder: int.MaxValue)]
-    private void DrawToolbar()
+    /// <inheritdoc/>
+    protected override bool CanOpen()
     {
-        if (!Enabled || !visibility.IsToolbarVisible()) return;
+        return true;
+    }
 
-        UpdateToolbarWidth();
-        UpdateToolbarNodeClassList();
-        UpdateToolbarAutoHideOffset();
+    /// <inheritdoc/>
+    protected override void OnOpen()
+    {
+        HydrateAetherytePoints();
+        BuildNodes();
+    }
 
-        RenderToolbarNode();
+    /// <inheritdoc/>
+    protected override void OnClose()
+    {
+        _expansions.Clear();
     }
 }

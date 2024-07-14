@@ -237,8 +237,8 @@ internal sealed class Player : IPlayer
         var ps = PlayerState.Instance();
 
         GrandCompanyId = ps->GrandCompany;
-        IsBattleMentor = ps->IsBattleMentor() && ps->MentorVersion == 2;
-        IsTradeMentor  = ps->IsTradeMentor() && ps->MentorVersion == 2;
+        IsBattleMentor = ps->IsBattleMentor() && ps->MentorVersion == 3;
+        IsTradeMentor  = ps->IsTradeMentor() && ps->MentorVersion == 3;
         IsMentor       = IsBattleMentor && IsTradeMentor;
     }
 
@@ -248,6 +248,13 @@ internal sealed class Player : IPlayer
     public JobInfo GetJobInfo(byte jobId)
     {
         return _jobInfoRepository.GetJobInfo(jobId);
+    }
+
+    public unsafe uint GetFreeInventorySpace()
+    {
+        InventoryManager* im = InventoryManager.Instance();
+
+        return im == null ? 0 : im->GetEmptySlotsInBag();
     }
 
     /// <summary>

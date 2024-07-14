@@ -38,8 +38,8 @@ internal sealed partial class CustomButtonWidget(
     private ITextureProvider TextureProvider { get; } = Framework.Service<ITextureProvider>();
 
     private string Command     { get; set; } = "";
-    private uint   LeftIconId  { get; set; }
-    private uint   RightIconId { get; set; }
+    private uint?  LeftIconId  { get; set; }
+    private uint?  RightIconId { get; set; }
 
     public override string GetInstanceName()
     {
@@ -60,9 +60,17 @@ internal sealed partial class CustomButtonWidget(
         SetLabel(GetConfigValue<string?>("Label"));
         UpdateIcons();
 
-        LabelNode.Style.TextOffset      = new(0, GetConfigValue<int>("TextYOffset"));
-        LeftIconNode.Style.ImageOffset  = new(0, GetConfigValue<int>("IconYOffset"));
-        RightIconNode.Style.ImageOffset = new(0, GetConfigValue<int>("IconYOffset"));
+        LabelNode.Style.TextOffset         = new(0, GetConfigValue<int>("TextYOffset"));
+        LeftIconNode.Style.ImageOffset     = new(0, GetConfigValue<int>("IconYOffset"));
+        RightIconNode.Style.ImageOffset    = new(0, GetConfigValue<int>("IconYOffset"));
+        LeftIconNode.Style.ImageGrayscale  = GetConfigValue<bool>("DesaturateIcon");
+        RightIconNode.Style.ImageGrayscale = GetConfigValue<bool>("DesaturateIcon");
+
+        bool hasText = !string.IsNullOrEmpty(GetConfigValue<string?>("Label"));
+
+        LeftIconNode.Style.Margin  = new(0, 0, 0, hasText ? -2 : 0);
+        RightIconNode.Style.Margin = new(0, hasText ? -2 : 0, 0, 0);
+        Node.Style.Padding         = new(0, hasText ? 6 : 3);
     }
 
     private void InvokeCommand(Node _)
@@ -88,12 +96,12 @@ internal sealed partial class CustomButtonWidget(
 
         if (leftIconId != LeftIconId) {
             LeftIconId = leftIconId;
-            SetLeftIcon(GetExistingIconId(LeftIconId));
+            SetLeftIcon(GetExistingIconId(LeftIconId ?? 0));
         }
 
         if (rightIconId != RightIconId) {
             RightIconId = rightIconId;
-            SetRightIcon(GetExistingIconId(RightIconId));
+            SetRightIcon(GetExistingIconId(RightIconId ?? 0));
         }
     }
 

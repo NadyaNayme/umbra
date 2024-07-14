@@ -19,55 +19,48 @@ using Umbra.Common;
 
 namespace Umbra.Widgets;
 
-internal partial class LocationWidget
+internal sealed partial class TeleportWidget
 {
-    /// <inheritdoc/>
     protected override IEnumerable<IWidgetConfigVariable> GetConfigVariables()
     {
         return [
             new BooleanWidgetConfigVariable(
-                "ShowDistrict",
-                I18N.Translate("Widget.Location.Config.ShowDistrict.Name"),
-                I18N.Translate("Widget.Location.Config.ShowDistrict.Description"),
+                "Decorate",
+                I18N.Translate("Widget.Teleport.Config.Decorate.Name"),
+                I18N.Translate("Widget.Teleport.Config.Decorate.Description"),
                 true
             ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
             new BooleanWidgetConfigVariable(
-                "Decorate",
-                I18N.Translate("Widget.Location.Config.Decorate.Name"),
-                I18N.Translate("Widget.Location.Config.Decorate.Description"),
+                "DesaturateIcon",
+                I18N.Translate("Widget.Teleport.Config.DesaturateIcon.Name"),
+                I18N.Translate("Widget.Teleport.Config.DesaturateIcon.Description"),
                 false
             ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
             new SelectWidgetConfigVariable(
-                "TextAlign",
-                I18N.Translate("Widget.Location.Config.TextAlign.Name"),
-                I18N.Translate("Widget.Location.Config.TextAlign.Description"),
+                "DisplayMode",
+                I18N.Translate("Widget.Teleport.Config.DisplayMode.Name"),
+                I18N.Translate("Widget.Teleport.Config.DisplayMode.Description"),
+                "TextAndIcon",
+                new() {
+                    { "TextAndIcon", I18N.Translate("Widget.Teleport.Config.DisplayMode.Option.TextAndIcon") },
+                    { "TextOnly", I18N.Translate("Widget.Teleport.Config.DisplayMode.Option.TextOnly") },
+                    { "IconOnly", I18N.Translate("Widget.Teleport.Config.DisplayMode.Option.IconOnly") }
+                }
+            ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
+            new SelectWidgetConfigVariable(
+                "IconLocation",
+                I18N.Translate("Widget.Teleport.Config.IconLocation.Name"),
+                I18N.Translate("Widget.Teleport.Config.IconLocation.Description"),
                 "Left",
                 new() {
-                    { "Left", I18N.Translate("Widget.Location.Config.TextAlign.Option.Left") },
-                    { "Center", I18N.Translate("Widget.Location.Config.TextAlign.Option.Center") },
-                    { "Right", I18N.Translate("Widget.Location.Config.TextAlign.Option.Right") },
+                    { "Left", I18N.Translate("Widget.Teleport.Config.IconLocation.Option.Left") },
+                    { "Right", I18N.Translate("Widget.Teleport.Config.IconLocation.Option.Right") }
                 }
             ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
             new IntegerWidgetConfigVariable(
                 "TextYOffset",
-                I18N.Translate("Widget.Location.Config.TextYOffset.Name"),
-                I18N.Translate("Widget.Location.Config.TextYOffset.Description"),
-                -1,
-                -5,
-                5
-            ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
-            new IntegerWidgetConfigVariable(
-                "TextYOffsetTop",
-                I18N.Translate("Widget.Location.Config.TextYOffsetTop.Name"),
-                I18N.Translate("Widget.Location.Config.TextYOffsetTop.Description"),
-                0,
-                -5,
-                5
-            ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
-            new IntegerWidgetConfigVariable(
-                "TextYOffsetBottom",
-                I18N.Translate("Widget.Location.Config.TextYOffsetBottom.Name"),
-                I18N.Translate("Widget.Location.Config.TextYOffsetBottom.Description"),
+                I18N.Translate("Widget.Teleport.Config.TextYOffset.Name"),
+                I18N.Translate("Widget.Teleport.Config.TextYOffset.Description"),
                 0,
                 -5,
                 5

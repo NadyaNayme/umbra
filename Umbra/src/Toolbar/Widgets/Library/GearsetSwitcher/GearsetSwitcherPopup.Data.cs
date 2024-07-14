@@ -14,10 +14,7 @@
  *     GNU Affero General Public License for more details.
  */
 
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using Umbra.Common;
 using Umbra.Game;
 using Una.Drawing;
@@ -67,6 +64,8 @@ internal sealed partial class GearsetSwitcherPopup
         AssignGearsetToDataLookupTables(gearset);
         GetGearsetListNodeFor(gearset.Category).AppendChild(gearsetNode);
         SetBackgroundGradientFor(gearset.Category);
+
+        if (AutoCloseOnChange) Close();
     }
 
     /// <summary>
