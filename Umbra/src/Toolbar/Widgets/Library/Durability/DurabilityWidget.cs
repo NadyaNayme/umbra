@@ -39,6 +39,7 @@ internal partial class DurabilityWidget(
     /// <inheritdoc/>
     protected override void Initialize()
     {
+        Node.OnRightClick += _ => Framework.Service<IChatSender>().Send("/action \"Materia Extraction\"");
         Popup.AddGroup("Equipment", I18N.Translate("Widget.Durability.Popup.Equipment", 0));
         Popup.AddGroup("Actions",   I18N.Translate("Widget.Durability.Popup.Actions",   1));
 

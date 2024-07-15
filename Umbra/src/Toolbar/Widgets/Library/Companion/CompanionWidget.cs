@@ -37,6 +37,7 @@ internal sealed partial class CompanionWidget(
     protected override void Initialize()
     {
         Node.OnClick += _ => TrySummonIfInactive();
+        Node.OnRightClick += _ => Framework.Service<IChatSender>().Send("/saddlebag");
 
         Node.QuerySelector("#Label")!.Style.Font = 1;
     }
