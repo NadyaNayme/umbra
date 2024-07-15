@@ -110,11 +110,11 @@ public abstract class WidgetPopup
 
         float width   = _popupNode.OuterWidth;
         float height  = _popupNode.OuterHeight;
-        float actX    = activator.Node.Bounds.MarginRect.X1 + (activator.Node.OuterWidth / 2);
+        float actX    = activator.Node.Bounds.MarginRect.X1 + (activator.Node.OuterWidth);
         Rect  tBounds = activator.Node.ParentNode!.ParentNode!.Bounds.MarginRect;
 
         // Calculate the position based on the anchor.
-        float windowX     = actX - (width / 2);
+        float windowX     = actX - (width / 4);
         float windowY     = Toolbar.IsTopAligned ? tBounds.Y2 - 2 : tBounds.Y1 + 2;
         float screenWidth = ImGui.GetMainViewport().WorkSize.X + 1920;
         float deltaTime   = ImGui.GetIO().DeltaTime * 10;

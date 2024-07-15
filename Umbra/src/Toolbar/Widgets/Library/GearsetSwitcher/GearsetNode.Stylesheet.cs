@@ -110,6 +110,7 @@ internal partial class GearsetNode
                     TextAlign = Anchor.MiddleRight,
                     Color     = new("Widget.PopupMenuTextMuted"),
                     FontSize  = 20,
+                    Padding   = new(0, 3) { Top = 0 },
                 }
             )
         ]

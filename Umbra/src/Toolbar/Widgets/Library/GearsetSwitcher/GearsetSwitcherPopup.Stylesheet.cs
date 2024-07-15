@@ -131,6 +131,7 @@ internal sealed partial class GearsetSwitcherPopup
                 new() {
                     Flow = Flow.Vertical,
                     Size = new(GearsetNode.NodeWidth, 0),
+                    
                 }
             ),
             new(
@@ -161,7 +162,6 @@ internal sealed partial class GearsetSwitcherPopup
                 new() {
                     Flow = Flow.Vertical,
                     Size = new(GearsetNode.NodeWidth, 0),
-                    Gap  = 4,
                 }
             )
         ]

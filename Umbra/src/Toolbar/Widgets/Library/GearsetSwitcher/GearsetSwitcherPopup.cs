@@ -79,7 +79,7 @@ internal sealed partial class GearsetSwitcherPopup : WidgetPopup, IDisposable
     public int ButtonIconYOffset { get; set; }
 
     public string TankRoleLocation     { get; set; } = "LeftColumn";
-    public string HealerRoleLocation   { get; set; } = "LeftColumn";
+    public string HealerRoleLocation   { get; set; } = "MiddleColumn";
     public string MeleeRoleLocation    { get; set; } = "LeftColumn";
     public string RangedRoleLocation   { get; set; } = "MiddleColumn";
     public string CasterRoleLocation   { get; set; } = "MiddleColumn";

@@ -26,7 +26,7 @@ namespace Umbra.Widgets;
 internal partial class GearsetNode : Node
 {
     public const int NodeWidth  = 200;
-    public const int NodeHeight = 40;
+    public const int NodeHeight = 50;
 
     private readonly IGearsetRepository _repository;
     private readonly Gearset            _gearset;
