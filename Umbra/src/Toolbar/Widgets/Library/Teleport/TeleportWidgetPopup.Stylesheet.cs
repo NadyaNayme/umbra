@@ -104,6 +104,12 @@ internal partial class TeleportWidgetPopup
                 }
             ),
             new(
+                ".destination:hover",
+                new() {
+                    BackgroundColor = new("Widget.PopupMenuBackgroundHover"),
+                }
+            ),
+            new(
                 ".destination-name",
                 new() {
                     Flow         = Flow.Horizontal,
@@ -121,8 +127,8 @@ internal partial class TeleportWidgetPopup
             new(
                 ".destination-name:hover",
                 new() {
-                    Color        = new("Widget.PopupMenuTextHover"),
-                    OutlineColor = new("Widget.PopupMenuTextOutlineHover"),
+                    Color           = new("Widget.PopupMenuTextHover"),
+                    OutlineColor    = new("Widget.PopupMenuTextOutlineHover"),
                 }
             ),
             new(
@@ -134,7 +140,7 @@ internal partial class TeleportWidgetPopup
                     TextAlign    = Anchor.MiddleRight,
                     TextOverflow = false,
                     WordWrap     = false,
-                    FontSize     = 11,
+                    FontSize     = 13,
                     Color        = new("Widget.PopupMenuTextMuted"),
                     OutlineColor = new("Widget.PopupMenuTextOutlineDisabled"),
                     OutlineSize  = 1,

@@ -16,6 +16,7 @@
 
 using Dalamud.Plugin.Services;
 using Umbra.Common;
+using Umbra.Game;
 using Una.Drawing;
 
 namespace Umbra.Widgets;
@@ -25,7 +26,7 @@ internal partial class TeleportWidgetPopup : WidgetPopup
     /// <inheritdoc/>
     protected override bool CanOpen()
     {
-        return true;
+        return Framework.Service<IPlayer>().CanUseTeleportAction;
     }
 
     /// <inheritdoc/>

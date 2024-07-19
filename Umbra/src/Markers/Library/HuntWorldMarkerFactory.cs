@@ -96,6 +96,8 @@ internal class HuntWorldMarkerFactory(IDataManager dataManager, IZoneManager zon
 
             activeIds.Add(id);
 
+            RemoveAllMarkers();
+
             SetMarker(
                 new() {
                     Key           = id,
