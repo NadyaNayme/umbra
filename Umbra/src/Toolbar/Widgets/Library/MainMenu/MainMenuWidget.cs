@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game.Text;
 using Dalamud.Plugin.Services;
+using Lumina.Data;
 using Umbra.Common;
 using Umbra.Game;
 
@@ -58,6 +59,7 @@ internal sealed class MainMenuWidget(
     protected override void Initialize()
     {
         _repository = Framework.Service<IMainMenuRepository>();
+        Node.OnRightClick += _ => OnCategoryRightClick();
     }
 
     /// <inheritdoc/>
@@ -273,6 +275,15 @@ internal sealed class MainMenuWidget(
         _category!.OnItemRemoved += OnItemRemoved;
 
         foreach (var item in _category.Items) OnItemAdded(item);
+    }
+
+    private void OnCategoryRightClick()
+    {
+        if (_category is null) return;
+        if (_category.Name == "Character") Framework.Service<IChatSender>().Send("/character");
+        if (_category.Name == "Duty") Framework.Service<IChatSender>().Send("/dutyfinder");
+        if (_category.Name == "Party") Framework.Service<IChatSender>().Send("/partyfinder");
+        if (_category.Name == "Travel") Framework.Service<IChatSender>().Send("/tp private");
     }
 
     private void OnItemAdded(MainMenuItem item)

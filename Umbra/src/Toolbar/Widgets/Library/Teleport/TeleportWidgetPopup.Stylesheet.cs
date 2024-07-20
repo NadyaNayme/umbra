@@ -278,7 +278,6 @@ internal partial class TeleportWidgetPopup
                     Color        = new("Widget.PopupMenuTextMuted"),
                     OutlineColor = new("Widget.PopupMenuTextOutline"),
                     OutlineSize  = 1,
-                    TextAlign    = Anchor.MiddleRight,
                     TextOffset   = new(0, 1),
                 }
             ),

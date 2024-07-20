@@ -54,7 +54,6 @@ internal sealed partial class TeleportWidget(
     protected override void OnUpdate()
     {
         Popup.MinimumColumns        = GetConfigValue<int>("MinimumColumns");
-        Popup.ExpansionMenuPosition = GetExpansionMenuPosition();
 
         bool showText = GetConfigValue<string>("DisplayMode") != "IconOnly";
         bool showIcon = GetConfigValue<string>("DisplayMode") != "TextOnly";

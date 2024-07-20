@@ -398,11 +398,3 @@ public enum ItemUsage
     NqOnly,
     HqOnly
 }
-
-public enum ItemUsage
-{
-    HqBeforeNq,
-    NqBeforeHq,
-    NqOnly,
-    HqOnly
-}
