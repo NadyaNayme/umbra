@@ -14,6 +14,8 @@
  *     GNU Affero General Public License for more details.
  */
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Game.ClientState.Conditions;
@@ -25,6 +27,8 @@ using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Excel.GeneratedSheets;
 using Umbra.Common;
+using Umbra.Game.Inventory;
+using Umbra.Game.Societies;
 
 namespace Umbra.Game;
 
@@ -35,6 +39,11 @@ internal sealed class Player : IPlayer
     /// The current online status ID.
     /// </summary>
     public uint OnlineStatusId { get; private set; }
+
+    /// <summary>
+    /// The current job ID.
+    /// </summary>
+    public byte JobId { get; private set; }
 
     /// <summary>
     /// The player's current position in the world.
@@ -158,11 +167,20 @@ internal sealed class Player : IPlayer
     /// </summary>
     public bool IsBattleMentor { get; private set; }
 
+    /// <summary>
+    /// Represents a list of societies (tribes) the player can be allied with
+    /// that contains tribe and reputation information.
+    /// </summary>
+    public IEnumerable<Society> Societies => _societiesRepository.Societies.Values.ToList();
+
     public IEquipmentRepository Equipment { get; }
 
-    private readonly IClientState      _clientState;
-    private readonly ICondition        _condition;
-    private readonly JobInfoRepository _jobInfoRepository;
+    public IPlayerInventory Inventory { get; }
+
+    private readonly IClientState        _clientState;
+    private readonly ICondition          _condition;
+    private readonly JobInfoRepository   _jobInfoRepository;
+    private readonly SocietiesRepository _societiesRepository;
 
     private readonly uint[] _acceptedOnlineStatusIds = [47, 32, 31, 27, 28, 29, 30, 12, 17, 21, 22, 23];
 
@@ -170,14 +188,18 @@ internal sealed class Player : IPlayer
         IClientState         clientState,
         ICondition           condition,
         IEquipmentRepository equipmentRepository,
-        JobInfoRepository    jobInfoRepository
+        JobInfoRepository    jobInfoRepository,
+        SocietiesRepository  societiesRepository,
+        IPlayerInventory     playerInventory
     )
     {
-        _clientState       = clientState;
-        _condition         = condition;
-        _jobInfoRepository = jobInfoRepository;
+        _clientState         = clientState;
+        _condition           = condition;
+        _jobInfoRepository   = jobInfoRepository;
+        _societiesRepository = societiesRepository;
 
         Equipment = equipmentRepository;
+        Inventory = playerInventory;
 
         OnTick();
     }
@@ -193,6 +215,7 @@ internal sealed class Player : IPlayer
         Rotation       = _clientState.LocalPlayer.Rotation;
         IsDead         = _clientState.LocalPlayer.IsDead;
         IsInPvP        = _clientState.IsPvPExcludingDen;
+        JobId          = (byte)_clientState.LocalPlayer.ClassJob.Id;
 
         IsCasting = _clientState.LocalPlayer.IsCasting
             || _condition[ConditionFlag.Casting]
@@ -250,13 +273,6 @@ internal sealed class Player : IPlayer
         return _jobInfoRepository.GetJobInfo(jobId);
     }
 
-    public unsafe uint GetFreeInventorySpace()
-    {
-        InventoryManager* im = InventoryManager.Instance();
-
-        return im == null ? 0 : im->GetEmptySlotsInBag();
-    }
-
     /// <summary>
     /// Returns true if the player has the specified item in their inventory.
     /// </summary>
@@ -280,24 +296,41 @@ internal sealed class Player : IPlayer
     /// <summary>
     /// Use the specified inventory item by its item ID.
     /// </summary>
-    public unsafe void UseInventoryItem(uint itemId)
+    public unsafe void UseInventoryItem(uint itemId, ItemUsage usage = ItemUsage.HqBeforeNq)
     {
         if (IsCasting || IsOccupied || IsDead || IsJumping) return;
+
         InventoryManager* im = InventoryManager.Instance();
         if (im == null) return;
 
         AgentInventoryContext* aic = AgentInventoryContext.Instance();
         if (aic == null) return;
 
-        if (im->GetInventoryItemCount(itemId) > 0)
-        {
-            aic->UseItem(itemId);
-            return;
-        }
+        switch (usage) {
+            case ItemUsage.HqOnly:
+                if (im->GetInventoryItemCount(itemId, true) > 0) aic->UseItem(itemId + 1000000);
+                return;
+            case ItemUsage.NqOnly:
+                if (im->GetInventoryItemCount(itemId) > 0) aic->UseItem(itemId);
+                return;
+            case ItemUsage.HqBeforeNq:
+                if (im->GetInventoryItemCount(itemId, true) > 0) {
+                    aic->UseItem(itemId + 1000000);
+                    return;
+                }
 
-        if (im->GetInventoryItemCount(itemId, true) > 0)
-        {
-            aic->UseItem(itemId + 1000000);
+                if (im->GetInventoryItemCount(itemId) > 0) aic->UseItem(itemId);
+                return;
+            case ItemUsage.NqBeforeHq:
+                if (im->GetInventoryItemCount(itemId) > 0) {
+                    aic->UseItem(itemId);
+                    return;
+                }
+
+                if (im->GetInventoryItemCount(itemId, true) > 0) aic->UseItem(itemId + 1000000);
+                return;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(usage), usage, null);
         }
     }
 
@@ -356,4 +389,20 @@ internal sealed class Player : IPlayer
         var layout = AtkStage.Instance()->RaptureAtkUnitManager->GetAddonByName("HudLayout");
         IsEditingHud = layout != null && layout->IsVisible;
     }
+}
+
+public enum ItemUsage
+{
+    HqBeforeNq,
+    NqBeforeHq,
+    NqOnly,
+    HqOnly
+}
+
+public enum ItemUsage
+{
+    HqBeforeNq,
+    NqBeforeHq,
+    NqOnly,
+    HqOnly
 }

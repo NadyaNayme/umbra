@@ -25,8 +25,10 @@ using Una.Drawing;
 
 namespace Umbra.Widgets;
 
-internal class MenuPopup : WidgetPopup
+public class MenuPopup : WidgetPopup
 {
+    public bool IsDisabled { get; set; }
+
     protected sealed override Node Node { get; } = new() {
         Stylesheet = PopupStyles.MenuPopupStylesheet,
         Style = new() {
@@ -78,6 +80,12 @@ internal class MenuPopup : WidgetPopup
 
             return true;
         };
+    }
+
+    /// <inheritdoc/>
+    protected override bool CanOpen()
+    {
+        return !IsDisabled && base.CanOpen();
     }
 
     /// <summary>

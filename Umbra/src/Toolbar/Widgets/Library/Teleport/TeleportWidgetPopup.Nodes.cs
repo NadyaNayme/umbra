@@ -14,97 +14,191 @@
  *     GNU Affero General Public License for more details.
  */
 
-using Dalamud.Game.Text;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using System.Collections.Generic;
 using Umbra.Common;
-using Umbra.Game;
 using Una.Drawing;
 
 namespace Umbra.Widgets;
 
-internal partial class TeleportWidgetPopup : WidgetPopup
+internal partial class TeleportWidgetPopup
 {
-    private const int ColumnWidth = 300;
-
     protected override Node Node { get; } = new() {
         Id         = "Popup",
         Stylesheet = Stylesheet,
-        ChildNodes = [new() { Id = "ExpansionList", }]
+        ChildNodes = [],
     };
+
+    private static Dictionary<string, Node> ExpansionLists { get; set; } = [];
 
     private void BuildNodes()
     {
-        Node.ChildNodes = [new() { Id = "ExpansionList", }];
+        Una.Drawing.Style alignmentStyle = new() {
+            Anchor = Toolbar.IsTopAligned
+                ? (ExpansionMenuPosition == "Left" ? Anchor.TopLeft : Anchor.TopRight)
+                : (ExpansionMenuPosition == "Left" ? Anchor.BottomLeft : Anchor.BottomRight),
+        };
 
-        foreach ((string xpKey, TeleportExpansion exp) in _expansions) {
-            Node expNode = BuildExpansionNode(exp);
-            Node regList = expNode.QuerySelector(".expansion-regions")!;
+        Node.ChildNodes = [
+            new() { Id = "ExpansionList", Style   = alignmentStyle },
+            new() { Id = "DestinationList", Style = alignmentStyle }
+        ];
 
-            foreach ((string regKey, TeleportRegion region) in exp.Regions) {
-                Node regNode = BuildRegionNode(regList, regKey, region);
-                Node dstList = regNode.QuerySelector(".region-destinations")!;
+        Node expansionList   = Node.FindById("ExpansionList")!;
+        Node destinationList = Node.FindById("DestinationList")!;
 
-                foreach ((string dstKey, TeleportDestination destination) in region.Destinations) {
-                    BuildDestinationNode(dstList, dstKey, destination);
-                }
-            }
+        foreach (TeleportExpansion expansion in _expansions.Values) {
+            BuildExpansionNode(expansionList, destinationList, expansion, !Toolbar.IsTopAligned);
         }
+
+        BuildFavoritesNodes(expansionList, destinationList);
     }
 
-    private Node BuildExpansionNode(TeleportExpansion expansion)
+    private void BuildFavoritesNodes(Node expansionList, Node destinationList)
     {
-        var expansionNode = new Node {
+        Node node = new() {
+            Id        = "Favorites",
+            NodeValue = I18N.Translate("Widget.Teleport.Favorites"),
+            SortIndex = int.MinValue + 1,
             ClassList = ["expansion"],
-            SortIndex = expansion.SortIndex,
+            Style = new() {
+                Anchor = !Toolbar.IsTopAligned ? Anchor.BottomLeft : Anchor.TopLeft,
+                Margin = new() {
+                    Top    = !Toolbar.IsTopAligned ? 16 : 0,
+                    Bottom = Toolbar.IsTopAligned ? 16 : 0,
+                }
+            }
+        };
+
+        expansionList.AppendChild(node);
+        node.OnMouseUp += n => ActivateExpansion(n.Id!);
+
+        Node destinationListFavorites = new() {
+            Id        = "Favorites",
+            ClassList = ["region-container"],
+            Style     = new() { IsVisible = false },
             ChildNodes = [
                 new() {
-                    ClassList = ["expansion-header"],
-                    NodeValue = expansion.Name,
-                },
-                new() {
-                    ClassList = ["expansion-regions"],
+                    ClassList = ["region"],
+                    ChildNodes = [
+                        new() {
+                            ClassList = ["region-header"],
+                            NodeValue = I18N.Translate("Widget.Teleport.Favorites"),
+                        },
+                        new() {
+                            ClassList = ["favorite-destinations"],
+                        }
+                    ]
                 }
             ]
         };
 
-        Node.FindById("ExpansionList")!.AppendChild(expansionNode);
-
-        return expansionNode;
+        destinationList.AppendChild(destinationListFavorites);
     }
 
-    private Node BuildRegionNode(Node target, string id, TeleportRegion region)
+    private void BuildExpansionNode(Node targetNode, Node destinations, TeleportExpansion expansion, bool reverse)
     {
-        var regionNode = new Node {
-            Id        = id,
+        Node node = new() {
+            Id        = expansion.NodeId,
+            NodeValue = expansion.Name,
+            SortIndex = reverse ? 1 - expansion.SortIndex : expansion.SortIndex,
+            ClassList = ["expansion"],
+            Style     = new() { Anchor = reverse ? Anchor.BottomLeft : Anchor.TopLeft }
+        };
+
+        node.OnMouseUp += n => ActivateExpansion(n.Id!);
+        targetNode.AppendChild(node);
+
+        Node destinationList = new() {
+            Id        = expansion.NodeId,
+            ClassList = ["region-container"],
+            Style     = new() { IsVisible = false }
+        };
+
+        ExpansionLists[expansion.NodeId] = destinationList;
+        destinations.AppendChild(destinationList);
+
+        foreach (var region in expansion.Regions.Values) {
+            BuildRegionNode(destinationList, region);
+        }
+
+        while (ExpansionLists[expansion.NodeId].ChildNodes.Count < MinimumColumns) {
+            ExpansionLists[expansion.NodeId]
+                .AppendChild(
+                    new() {
+                        ClassList = ["region"],
+                        ChildNodes = [
+                            new() {
+                                ClassList = ["region-spacer"]
+                            }
+                        ]
+                    }
+                );
+        }
+    }
+
+    private void BuildRegionNode(Node targetNode, TeleportRegion region)
+    {
+        Node regionNode = new() {
             ClassList = ["region"],
             ChildNodes = [
                 new() {
                     ClassList = ["region-header"],
-                    NodeValue = $"{region.Name}",
+                    NodeValue = region.Name,
                 },
                 new() {
                     ClassList = ["region-destinations"],
-                    Style     = new() { IsVisible = true },
                 }
             ]
         };
 
-        target.AppendChild(regionNode);
+        targetNode.AppendChild(regionNode);
+        Node destinationList = regionNode.QuerySelector(".region-destinations")!;
 
-        regionNode.QuerySelector(".region-header")!.OnMouseUp += _ => {
-            var listNode = regionNode.QuerySelector(".region-destinations")!;
-            listNode.Style.IsVisible = !listNode.Style.IsVisible;
-        };
-
-        return regionNode;
+        foreach (var map in region.Maps.Values) {
+            BuildMapNode(destinationList, map);
+        }
     }
 
-    private Node BuildDestinationNode(Node target, string id, TeleportDestination destination)
+    private void BuildMapNode(Node targetNode, TeleportMap map)
     {
-        var destinationNode = new Node {
-            Id        = id,
-            ClassList = ["destination"],
+        Node mapNode = new() {
+            ClassList = ["map"],
             ChildNodes = [
+                new() {
+                    ClassList = ["map-header"],
+                    NodeValue = map.Name,
+                },
+                new() {
+                    ClassList = ["map-destinations"],
+                }
+            ]
+        };
+
+        targetNode.AppendChild(mapNode);
+        Node destinationList = mapNode.QuerySelector(".map-destinations")!;
+
+        foreach (var destination in map.Destinations.Values) {
+            BuildDestinationNode(destinationList, destination);
+        }
+    }
+
+    private void BuildDestinationNode(
+        Node                targetNode,
+        TeleportDestination destination,
+        int?                sortIndex     = null,
+        bool                showSortables = false
+    )
+    {
+        Node node = new() {
+            Id        = destination.NodeId,
+            ClassList = ["destination"],
+            SortIndex = sortIndex ?? destination.SortIndex,
+            ChildNodes = [
+                new() {
+                    ClassList   = ["destination-icon"],
+                    Style       = new() { UldPartId = destination.UldPartId },
+                    InheritTags = true,
+                },
                 new() {
                     ClassList   = ["destination-name"],
                     NodeValue   = destination.Name,
@@ -112,24 +206,31 @@ internal partial class TeleportWidgetPopup : WidgetPopup
                 },
                 new() {
                     ClassList   = ["destination-cost"],
-                    NodeValue   = $"({destination.GilCost} gil)",
+                    NodeValue   = $"{destination.GilCost} gil",
                     InheritTags = true,
                 }
             ]
         };
 
-        target.AppendChild(destinationNode);
+        targetNode.AppendChild(node);
 
-        destinationNode.OnMouseUp += _ => {
-            if (Framework.Service<IPlayer>().CanUseTeleportAction) {
-                unsafe {
-                    Telepo.Instance()->Teleport(destination.AetheryteId, destination.SubIndex);
-                }
+        node.OnRightClick += _ => {
+            _selectedDestination = destination;
 
-                Close();
+            ContextMenu!.SetEntryVisible("AddFav", !IsFavorite(destination));
+            ContextMenu!.SetEntryVisible("DelFav", IsFavorite(destination));
+            ContextMenu!.SetEntryVisible("MoveUp", showSortables);
+            ContextMenu!.SetEntryVisible("MoveDown", showSortables);
+
+            if (showSortables && IsFavorite(destination)) {
+                var indexAt = Favorites.IndexOf($"{destination.AetheryteId}:{destination.SubIndex}");
+                ContextMenu!.SetEntryDisabled("MoveUp", indexAt == 0);
+                ContextMenu!.SetEntryDisabled("MoveDown", indexAt == Favorites.Count - 1);
             }
+
+            ContextMenu!.Present();
         };
 
-        return destinationNode;
+        node.OnMouseUp += _ => Teleport(destination);
     }
 }

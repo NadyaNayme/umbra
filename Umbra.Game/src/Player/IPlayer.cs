@@ -14,7 +14,10 @@
  *     GNU Affero General Public License for more details.
  */
 
+using System.Collections.Generic;
 using System.Numerics;
+using Umbra.Game.Inventory;
+using Umbra.Game.Societies;
 
 namespace Umbra.Game;
 
@@ -24,6 +27,11 @@ public interface IPlayer
     /// The current online status ID.
     /// </summary>
     public uint OnlineStatusId { get; }
+
+    /// <summary>
+    /// The current job ID.
+    /// </summary>
+    public byte JobId { get; }
 
     /// <summary>
     /// The player's current position in the world.
@@ -159,14 +167,21 @@ public interface IPlayer
     public IEquipmentRepository Equipment { get; }
 
     /// <summary>
+    /// Represents a list of societies (tribes) the player can be allied with
+    /// that contains tribe and reputation information.
+    /// </summary>
+    public IEnumerable<Society> Societies { get; }
+
+    /// <summary>
+    /// Returns a service instance that allows retrieving information about the
+    /// player's different inventory containers.
+    /// </summary>
+    public IPlayerInventory Inventory { get; }
+
+    /// <summary>
     /// Get the job information by the specified job ID.
     /// </summary>
     public JobInfo GetJobInfo(byte jobId);
-
-    /// <summary>
-    /// Returns the amount of free space the player has in their main inventory.
-    /// </summary>
-    public uint GetFreeInventorySpace();
 
     /// <summary>
     /// Returns true if the player has the specified item in their inventory.
@@ -181,7 +196,7 @@ public interface IPlayer
     /// <summary>
     /// Use the specified inventory item by its item ID.
     /// </summary>
-    public void UseInventoryItem(uint itemId);
+    public void UseInventoryItem(uint itemId, ItemUsage usage = ItemUsage.HqBeforeNq);
 
     /// <summary>
     /// Returns true if the specified general action is unlocked.

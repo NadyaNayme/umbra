@@ -46,13 +46,16 @@ internal sealed partial class TeleportWidget(
 
         TeleportName = teleportAction.Name.ToString();
         TeleportIcon = (uint)teleportAction.Icon;
-        
+
         Node.OnRightClick += _ => Framework.Service<IChatSender>().Send("/return");
 
     }
 
     protected override void OnUpdate()
     {
+        Popup.MinimumColumns        = GetConfigValue<int>("MinimumColumns");
+        Popup.ExpansionMenuPosition = GetExpansionMenuPosition();
+
         bool showText = GetConfigValue<string>("DisplayMode") != "IconOnly";
         bool showIcon = GetConfigValue<string>("DisplayMode") != "TextOnly";
         bool leftIcon = GetConfigValue<string>("IconLocation") == "Left";

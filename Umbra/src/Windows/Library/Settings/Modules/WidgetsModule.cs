@@ -17,6 +17,8 @@
 using Umbra.Common;
 using Umbra.Widgets;
 using Umbra.Widgets.System;
+using Umbra.Windows.Library.WidgetConfig;
+using Una.Drawing;
 
 namespace Umbra.Windows.Settings.Modules;
 
@@ -24,8 +26,6 @@ internal partial class WidgetsModule : SettingsModule
 {
     public override string Id   => "WidgetsModule";
     public override string Name { get; } = I18N.Translate("Settings.WidgetsModule.Name");
-
-    private WidgetManager WidgetManager { get; } = Framework.Service<WidgetManager>();
 
     public WidgetsModule()
     {
@@ -38,11 +38,22 @@ internal partial class WidgetsModule : SettingsModule
         Node.QuerySelector("#Center")!.AppendChild(CreateAddNewButton("Center"));
         Node.QuerySelector("#Right")!.AppendChild(CreateAddNewButton("Right"));
 
+        Node.QuerySelector("#ManageProfiles")!.OnMouseUp += _ => {
+            Framework.Service<WindowManager>().Present("ToolbarProfilesWindow", new ToolbarProfilesWindow());
+        };
+
         foreach (var widget in wm.GetWidgetInstances()) OnWidgetInstanceCreated(widget);
+    }
+
+    public override void OnOpen()
+    {
     }
 
     public override void OnUpdate()
     {
+        Node.QuerySelector(".module-header--profile-name")!.NodeValue =
+            I18N.Translate("Settings.WidgetsModule.Profile", Framework.Service<WidgetManager>().GetActiveProfileName());
+
         UpdateNodeSizes();
     }
 

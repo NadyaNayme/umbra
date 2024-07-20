@@ -56,7 +56,7 @@ internal class FlagMarkerFactory : WorldMarkerFactory
         }
 
         var fadeDist = GetConfigValue<int>("FadeDistance");
-        var key = $"FlagMarker_{agentMap->FlagMapMarker.MapId}";
+        var key      = $"FlagMarker_{agentMap->FlagMapMarker.MapId}";
 
         SetMarker(
             new() {
@@ -68,6 +68,7 @@ internal class FlagMarkerFactory : WorldMarkerFactory
                 ShowOnCompass = GetConfigValue<bool>("ShowOnCompass"),
             }
         );
+
         RemoveMarkersExcept([key]);
     }
 }
