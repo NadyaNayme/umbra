@@ -39,35 +39,8 @@ internal partial class DurabilityWidget(
     /// <inheritdoc/>
     protected override void Initialize()
     {
+        Node.OnClick += _ => Framework.Service<IChatSender>().Send("/action Repair");
         Node.OnRightClick += _ => Framework.Service<IChatSender>().Send("/action \"Materia Extraction\"");
-        Popup.AddGroup("Equipment", I18N.Translate("Widget.Durability.Popup.Equipment", 0));
-        Popup.AddGroup("Actions",   I18N.Translate("Widget.Durability.Popup.Actions",   1));
-
-        for (var i = 0; i < 13; i++) {
-            Popup.AddButton($"Slot_{i}", "-", i, groupId: "Equipment");
-        }
-
-        var           dm = Framework.Service<IDataManager>();
-        GeneralAction rp = dm.GetExcelSheet<GeneralAction>()!.GetRow(6)!;  // Repair
-        GeneralAction sp = dm.GetExcelSheet<GeneralAction>()!.GetRow(14)!; // Extract Materia
-
-        Popup.AddButton(
-            "Repair",
-            rp.Name.ToDalamudString().ToString(),
-            0,
-            iconId: (uint)rp.Icon,
-            groupId: "Actions",
-            onClick: () => Player.UseGeneralAction(6)
-        );
-
-        Popup.AddButton(
-            "Extract",
-            sp.Name.ToDalamudString().ToString(),
-            1,
-            iconId: (uint)sp.Icon,
-            groupId: "Actions",
-            onClick: () => Player.UseGeneralAction(14)
-        );
     }
 
     /// <inheritdoc/>
