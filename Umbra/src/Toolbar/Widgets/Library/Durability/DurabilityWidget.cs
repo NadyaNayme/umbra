@@ -67,6 +67,10 @@ internal partial class DurabilityWidget(
                 SetLeftIcon(null);
                 SetRightIcon(GetIconId());
                 break;
+            case "Hidden":
+                SetLeftIcon(null);
+                SetRightIcon(null);
+                break;
         }
 
         switch (GetConfigValue<string>("TextAlign")) {
@@ -87,6 +91,7 @@ internal partial class DurabilityWidget(
                     $"{I18N.Translate("Widget.Durability.Durability")}: {Player.Equipment.LowestDurability}%",
                     $"{I18N.Translate("Widget.Durability.Spiritbond")}: {Player.Equipment.HighestSpiritbond}%"
                 );
+
                 break;
             case "Short":
                 SetLabel($"{Player.Equipment.LowestDurability}% / {Player.Equipment.HighestSpiritbond}%");
@@ -102,6 +107,17 @@ internal partial class DurabilityWidget(
                 break;
         }
 
+        LeftIconNode.Style.ImageGrayscale  = GetConfigValue<bool>("DesaturateIcon");
+        RightIconNode.Style.ImageGrayscale = GetConfigValue<bool>("DesaturateIcon");
+        LabelNode.Style.TextOffset         = new(0, GetConfigValue<int>("TextYOffset"));
+        TopLabelNode.Style.TextOffset      = new(0, GetConfigValue<int>("TextYOffsetTop"));
+        BottomLabelNode.Style.TextOffset   = new(0, GetConfigValue<int>("TextYOffsetBottom"));
+
+        bool hasText = GetConfigValue<string>("DisplayMode") != "IconOnly";
+        LeftIconNode.Style.Margin  = new(0, 0, 0, hasText ? -2 : 0);
+        RightIconNode.Style.Margin = new(0, hasText ? -2 : 0, 0, 0);
+        Node.Style.Padding         = new(0, hasText ? 6 : 3);
+
         for (var i = 0; i < 13; i++) {
             EquipmentSlot eq = Player.Equipment.Slots[i];
 
@@ -115,6 +131,7 @@ internal partial class DurabilityWidget(
         if (Popup.IsOpen) {
             Popup.SetButtonDisabled("Repair",  !Player.IsGeneralActionUnlocked(6));
             Popup.SetButtonDisabled("Extract", !Player.IsGeneralActionUnlocked(14));
+            Popup.SetButtonDisabled("Melding", !Player.IsGeneralActionUnlocked(13));
         }
     }
 

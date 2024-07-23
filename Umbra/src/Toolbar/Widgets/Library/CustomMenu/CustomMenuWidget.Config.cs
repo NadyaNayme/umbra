@@ -46,6 +46,18 @@ internal sealed partial class CustomMenuWidget
             "My Menu",
             32
         ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
+        new StringWidgetConfigVariable(
+            "Tooltip",
+            I18N.Translate("Widget.CustomMenu.Config.Tooltip.Name"),
+            I18N.Translate("Widget.CustomMenu.Config.Tooltip.Description"),
+            ""
+        ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
+        new BooleanWidgetConfigVariable(
+            "HideLabel",
+            I18N.Translate("Widget.CustomMenu.Config.HideLabel.Name"),
+            I18N.Translate("Widget.CustomMenu.Config.HideLabel.Description"),
+            false
+        ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
         new BooleanWidgetConfigVariable(
             "Decorate",
             I18N.Translate("Widget.CustomMenu.Config.Decorate.Name"),
@@ -88,6 +100,12 @@ internal sealed partial class CustomMenuWidget
             -5,
             5
         ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
+        new BooleanWidgetConfigVariable(
+            "DesaturateMenuIcons",
+            I18N.Translate("Widget.CustomMenu.Config.DesaturateMenuIcons.Name"),
+            I18N.Translate("Widget.CustomMenu.Config.DesaturateMenuIcons.Description"),
+            false
+        ) { Category = I18N.Translate("Widget.ConfigCategory.MenuAppearance") },
     ];
 
     private static IEnumerable<IWidgetConfigVariable> CreateButtonVariables(int buttonIndex)
@@ -97,6 +115,13 @@ internal sealed partial class CustomMenuWidget
                 $"ButtonLabel_{buttonIndex}",
                 I18N.Translate("Widget.CustomMenu.Config.ButtonLabel.Name"),
                 I18N.Translate("Widget.CustomMenu.Config.ButtonLabel.Description"),
+                "",
+                32
+            ) { Category = I18N.Translate("Widget.CustomMenu.Config.ButtonId", buttonIndex + 1) },
+            new StringWidgetConfigVariable(
+                $"ButtonAltLabel_{buttonIndex}",
+                I18N.Translate("Widget.CustomMenu.Config.ButtonAltLabel.Name"),
+                I18N.Translate("Widget.CustomMenu.Config.ButtonAltLabel.Description"),
                 "",
                 32
             ) { Category = I18N.Translate("Widget.CustomMenu.Config.ButtonId", buttonIndex + 1) },

@@ -53,7 +53,9 @@ internal sealed partial class TeleportWidget(
 
     protected override void OnUpdate()
     {
-        Popup.MinimumColumns        = GetConfigValue<int>("MinimumColumns");
+        Popup.MinimumColumns         = GetConfigValue<int>("MinimumColumns");
+        Popup.ExpansionMenuPosition  = GetExpansionMenuPosition();
+        Popup.OpenFavoritesByDefault = GetConfigValue<bool>("OpenFavoritesByDefault");
 
         bool showText = GetConfigValue<string>("DisplayMode") != "IconOnly";
         bool showIcon = GetConfigValue<string>("DisplayMode") != "TextOnly";
@@ -65,7 +67,7 @@ internal sealed partial class TeleportWidget(
         LeftIconNode.Style.Margin  = new(0, 0, 0, showText ? -2 : 0);
         RightIconNode.Style.Margin = new(0, showText ? -2 : 0, 0, 0);
         LabelNode.Style.TextOffset = new(0, GetConfigValue<int>("TextYOffset"));
-        Node.Style.Padding         = new(0, showText ? 6 : 3);
+        Node.Style.Padding         = new() { Left = showIcon ? 3 : 0, Right = showIcon ? 3 : 0 };
         Node.Tooltip               = !showText ? TeleportName : null;
 
         if (showIcon) {
