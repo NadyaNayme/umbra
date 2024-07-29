@@ -52,17 +52,19 @@ internal partial class InventorySpaceWidget(
             _                  => PlayerInventoryType.Inventory
         };
 
-        if (source != PlayerInventoryType.Inventory && Player.IsBoundByDuty) {
-            Node.Style.IsVisible = false;
-            return;
-        }
-
         Node.Style.IsVisible = true;
 
         uint usedSpace    = Player.Inventory.GetOccupiedInventorySpace(source);
         uint totalSpace   = Player.Inventory.GetTotalInventorySpace(source);
         var  iconLocation = GetConfigValue<string>("IconLocation");
 
+        if (totalSpace == 0) {
+            // Inventory is not loaded or unavailable in current content.
+            Node.Style.IsVisible = false;
+            return;
+        }
+
+        Node.Style.IsVisible = true;
         SetGhost(!GetConfigValue<bool>("Decorate"));
 
         switch (iconLocation) {
@@ -76,11 +78,16 @@ internal partial class InventorySpaceWidget(
                 break;
         }
 
-        var l = iconLocation == "Left" ? " " : "";
-        var r = iconLocation == "Right" ? " " : "";
-        SetLabel(GetConfigValue<bool>("ShowTotal") ? $"{l}{usedSpace} / {totalSpace}{r}" : $"{l}{usedSpace}{r}");
+        string l = iconLocation == "Left" ? " " : "";
+        string r = iconLocation == "Right" ? " " : "";
+        uint   u = GetConfigValue<bool>("ShowRemaining") ? totalSpace - usedSpace : usedSpace;
+        bool   d = GetConfigValue<bool>("Decorate");
+
+        SetLabel(GetConfigValue<bool>("ShowTotal") ? $"{l}{u} / {totalSpace}{r}" : $"{l}{u}{r}");
 
         LabelNode.Style.TextOffset = new(0, GetConfigValue<int>("TextYOffset"));
+        LeftIconNode.Style.Margin  = new(0, d ? 0 : -2, 0, d ? -2 : 0);
+        RightIconNode.Style.Margin = new(0, d ? -2 : 0, 0, d ? 0 : -2);
     }
 
     private uint GetIconId(PlayerInventoryType type, uint freeSpace)

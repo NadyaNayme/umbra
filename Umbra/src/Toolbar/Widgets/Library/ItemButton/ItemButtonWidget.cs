@@ -75,32 +75,46 @@ internal sealed partial class ItemButtonWidget(
             IconId   = item?.IconId;
         }
 
-        bool showLabel = GetConfigValue<bool>("ShowLabel") && ItemName is not null;
+        Node.Style.IsVisible = !GetConfigValue<bool>("HideIfNotOwned")
+            || Player.HasItemInInventory(ItemId, 1, GetItemUsage());
 
-        SetLabel(ItemName);
+        bool showLabel = GetConfigValue<bool>("ShowLabel") && ItemName is not null;
+        bool showCount = GetConfigValue<bool>("ShowCount");
+        int  owned     = Player.GetItemCount(itemId, GetItemUsage());
+
+        string name  = showLabel ? ItemName ?? "" : "";
+        string count = showCount ? $"{owned}" : "";
+        string label = showLabel && showCount ? $"{ItemName} x {owned}" : name + count;
+
+        SetLabel(label);
         SetDisabled(!CanUseItem());
         UpdateIcons();
 
-        Node.Tooltip               = showLabel ? null : ItemName;
-        LabelNode.Style.IsVisible  = showLabel;
+        Node.Tooltip               = showLabel ? null : label;
+        LabelNode.Style.IsVisible  = showLabel || showCount;
         LeftIconNode.Style.Margin  = new() { Left  = showLabel ? -3 : 0 };
         RightIconNode.Style.Margin = new() { Right = showLabel ? -3 : 0 };
         Node.Style.Padding         = new(0, showLabel ? 6 : 4);
+
+        base.OnUpdate();
     }
 
     private void UseItem(Node _)
     {
         if (!CanUseItem()) return;
 
-        ItemUsage usage = GetConfigValue<string>("ItemUsage") switch {
+        Player.UseInventoryItem(ItemId, GetItemUsage());
+    }
+
+    private ItemUsage GetItemUsage()
+    {
+        return GetConfigValue<string>("ItemUsage") switch {
             "HqBeforeNq" => ItemUsage.HqBeforeNq,
             "NqBeforeHq" => ItemUsage.NqBeforeHq,
-            "OnlyHq"     => ItemUsage.HqOnly,
-            "OnlyNq"     => ItemUsage.NqOnly,
+            "HqOnly"     => ItemUsage.HqOnly,
+            "NqOnly"     => ItemUsage.NqOnly,
             _            => ItemUsage.HqBeforeNq
         };
-
-        Player.UseInventoryItem(ItemId, usage);
     }
 
     private bool CanUseItem()

@@ -15,9 +15,11 @@
  */
 
 using ImGuiNET;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Umbra.Common;
 using Umbra.Widgets.System;
 using Una.Drawing;
@@ -30,6 +32,7 @@ public abstract class ToolbarWidget(
     Dictionary<string, object>? configValues = null
 ) : IDisposable
 {
+    internal event Action<IWidgetConfigVariable>?      OnConfigValueChanged;
     internal event Action<ToolbarWidget, WidgetPopup>? OpenPopup;
     internal event Action<ToolbarWidget, WidgetPopup>? OpenPopupDelayed;
 
@@ -72,6 +75,8 @@ public abstract class ToolbarWidget(
 
     private readonly Dictionary<string, IWidgetConfigVariable> _configVariables = new();
     private readonly Dictionary<string, object>                _configValues    = configValues ?? [];
+
+    private bool _isDisposed;
 
     public void Setup()
     {
@@ -156,10 +161,39 @@ public abstract class ToolbarWidget(
     }
 
     /// <inheritdoc/>
-    public virtual void Dispose()
+    public void Dispose()
     {
-        GC.SuppressFinalize(this);
+        if (_isDisposed) return;
+        _isDisposed = true;
+
+        foreach (var handler in OnConfigValueChanged?.GetInvocationList() ?? []) {
+            OnConfigValueChanged -= (Action<IWidgetConfigVariable>)handler;
+        }
+
+        foreach (var handler in OpenPopup?.GetInvocationList() ?? []) {
+            OpenPopup -= (Action<ToolbarWidget, WidgetPopup>)handler;
+        }
+
+        foreach (var handler in OpenPopupDelayed?.GetInvocationList() ?? []) {
+            OpenPopupDelayed -= (Action<ToolbarWidget, WidgetPopup>)handler;
+        }
+
+        foreach (var cfg in _configVariables.Values) {
+            if (cfg is IUntypedWidgetConfigVariable u) {
+                u.Dispose();
+            }
+        }
+
+        OnDisposed();
+        Popup?.Dispose();
+        Node.Dispose();
+        _configVariables.Clear();
     }
+
+    /// <summary>
+    /// Invoked when the widget is being disposed.
+    /// </summary>
+    protected virtual void OnDisposed() { }
 
     /// <summary>
     /// Initialization method that is called when the widget is created and
@@ -191,6 +225,14 @@ public abstract class ToolbarWidget(
         return c.Value;
     }
 
+    /// <summary>
+    /// Returns true of a config variable with the given name exists.
+    /// </summary>
+    public bool HasConfigVariable(string name)
+    {
+        return _configVariables.ContainsKey(name);
+    }
+
     public void SetConfigValue<T>(string name, T value)
     {
         if (!_configVariables.TryGetValue(name, out var cfg)) {
@@ -202,6 +244,49 @@ public abstract class ToolbarWidget(
         }
 
         c.Value = value;
+
+        Logger.Info($"Set config value '{name}' to '{value}'.");
+
+        Framework.Service<WidgetManager>().SaveWidgetState(Id);
+        Framework.Service<WidgetManager>().SaveState();
+
+        OnConfigValueChanged?.Invoke(c);
+    }
+
+    public void CopyInstanceSettingsToClipboard()
+    {
+        var config = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(_configValues)));
+
+        Logger.Info(JsonConvert.SerializeObject(_configValues));
+
+        ImGui.SetClipboardText($"WI|{Info.Id}|{config}");
+    }
+
+    public void PasteInstanceSettingsFromClipboard()
+    {
+        string? clipboard = ImGui.GetClipboardText();
+
+        if (string.IsNullOrEmpty(clipboard)) return;
+        if (!clipboard.StartsWith("WI|")) return;
+
+        string[] parts = clipboard.Split('|');
+
+        if (parts.Length < 3) return;
+        if (parts[1] != Info.Id) return;
+
+        string config = Encoding.UTF8.GetString(Convert.FromBase64String(parts[2]));
+
+        Dictionary<string, object>? values = JsonConvert.DeserializeObject<Dictionary<string, object>>(config);
+        if (values == null) return;
+
+        foreach ((string key, object value) in values) {
+            if (_configVariables.TryGetValue(key, out IWidgetConfigVariable? cfg)) {
+                if (cfg is IUntypedWidgetConfigVariable u) {
+                    u.SetValue(value);
+                    OnConfigValueChanged?.Invoke(cfg);
+                }
+            }
+        }
 
         Framework.Service<WidgetManager>().SaveWidgetState(Id);
         Framework.Service<WidgetManager>().SaveState();

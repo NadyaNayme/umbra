@@ -14,6 +14,7 @@
  *     GNU Affero General Public License for more details.
  */
 
+using FFXIVClientStructs.FFXIV.Client.UI;
 using System.Collections.Generic;
 using System.Numerics;
 using Umbra.Common;
@@ -39,6 +40,14 @@ internal sealed partial class CompanionWidget(
         Node.OnClick += _ => TrySummonIfInactive();
         Node.OnRightClick += _ => Framework.Service<IChatSender>().Send("/saddlebag");
 
+        Node.OnRightClick += _ => {
+            unsafe {
+                if (UIModule.Instance()->IsMainCommandUnlocked(42)) {
+                    UIModule.Instance()->ExecuteMainCommand(42); // Open companion window.
+                }
+            }
+        };
+
         Node.QuerySelector("#Label")!.Style.Font = 1;
     }
 
@@ -51,8 +60,8 @@ internal sealed partial class CompanionWidget(
 
         Node.Style.IsVisible = true;
 
-        SetGhost(!GetConfigValue<bool>("Decorate"));
         SetDisabled(!Companion.HasGysahlGreens || !Companion.CanSummon());
+        SetGhost(!GetConfigValue<bool>("Decorate"));
 
         var displayMode = GetConfigValue<string>("DisplayMode");
 
@@ -62,9 +71,12 @@ internal sealed partial class CompanionWidget(
 
         UpdateWidgetIcon();
 
-        Vector2 iconOffset = new(0, GetConfigValue<int>("IconYOffset"));
-        Node.QuerySelector("#LeftIcon")!.Style.ImageOffset  = iconOffset;
-        Node.QuerySelector("#RightIcon")!.Style.ImageOffset = iconOffset;
+        Vector2 iconOffset     = new(0, GetConfigValue<int>("IconYOffset"));
+        bool    desaturateIcon = GetConfigValue<bool>("DesaturateIcon");
+        LeftIconNode.Style.ImageOffset     = iconOffset;
+        RightIconNode.Style.ImageOffset    = iconOffset;
+        LeftIconNode.Style.ImageGrayscale  = Node.IsDisabled || desaturateIcon;
+        RightIconNode.Style.ImageGrayscale = Node.IsDisabled || desaturateIcon;
     }
 
     private void UpdateWidgetText()
@@ -93,7 +105,7 @@ internal sealed partial class CompanionWidget(
                 break;
         }
 
-        if (displayMode == "IconOnly" || Companion.TimeLeft < 1 || ! Companion.IsActive) {
+        if (displayMode == "IconOnly" || Companion.TimeLeft < 1 || !Companion.IsActive) {
             Node.Style.Padding                             = new(0, 4);
             Node.QuerySelector("#LeftIcon")!.Style.Margin  = new() { Left  = 0 };
             Node.QuerySelector("#RightIcon")!.Style.Margin = new() { Right = 0 };

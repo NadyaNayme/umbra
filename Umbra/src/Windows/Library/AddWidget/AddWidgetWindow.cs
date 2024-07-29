@@ -27,7 +27,7 @@ using Una.Drawing;
 
 namespace Umbra.Windows.Library.AddWidget;
 
-internal class AddWidgetWindow : Window
+internal class AddWidgetWindow(string locationId) : Window
 {
     public event Action<string>? OnWidgetAdded;
 
@@ -38,7 +38,8 @@ internal class AddWidgetWindow : Window
     protected override Vector2 DefaultSize { get; } = new(400, 300);
     protected override string  Title       { get; } = I18N.Translate("Settings.AddWidgetWindow.Title");
 
-    private WidgetInfo? _selectedWidgetInfo;
+    private WidgetInfo?   _selectedWidgetInfo;
+    private WidgetManager WidgetManager => Framework.Service<WidgetManager>();
 
     protected override Node Node { get; } = new() {
         Stylesheet = AddWidgetStylesheet,
@@ -57,6 +58,16 @@ internal class AddWidgetWindow : Window
                 ClassList = ["add-widget-footer"],
                 ChildNodes = [
                     new() {
+                        ClassList = ["add-widget-footer--buttons", "left-side"],
+                        ChildNodes = [
+                            new ButtonNode(
+                                "PasteButton",
+                                I18N.Translate("Paste"),
+                                FontAwesomeIcon.Paste
+                            ),
+                        ]
+                    },
+                    new() {
                         ClassList = ["add-widget-footer--buttons"],
                         ChildNodes = [
                             new ButtonNode("CancelButton", I18N.Translate("Cancel")),
@@ -68,10 +79,14 @@ internal class AddWidgetWindow : Window
         ]
     };
 
+    protected override void OnDisposed()
+    {
+        foreach (var handler in OnWidgetAdded?.GetInvocationList() ?? [])  OnWidgetAdded -= (Action<string>)handler;
+    }
+
     protected override void OnOpen()
     {
-        Framework
-            .Service<WidgetManager>()
+        WidgetManager
             .GetWidgetInfoList()
             .OrderBy(w => w.Name)
             .ToList()
@@ -84,9 +99,21 @@ internal class AddWidgetWindow : Window
             Close();
         };
 
-        Node addButton = Node.QuerySelector("#AddButton")!;
+        Node addButton   = Node.QuerySelector("#AddButton")!;
+        Node pasteButton = Node.QuerySelector("#PasteButton")!;
 
-        addButton.Tooltip = I18N.Translate("Settings.AddWidgetWindow.AddButtonTooltip");
+        addButton.Tooltip           = I18N.Translate("Settings.AddWidgetWindow.AddButtonTooltip");
+        pasteButton.Tooltip         = I18N.Translate("Settings.AddWidgetWindow.AddButtonTooltip");
+        pasteButton.Style.IsVisible = WidgetManager.CanCreateInstanceFromClipboard();
+
+        pasteButton.OnMouseUp += _ => {
+            WidgetManager.CreateInstanceFromClipboard(locationId);
+
+            if (!ImGui.GetIO().KeyShift) {
+                Close();
+            }
+        };
+
         addButton.OnMouseUp += _ => {
             if (_selectedWidgetInfo is null) return;
             OnWidgetAdded?.Invoke(_selectedWidgetInfo.Id);
@@ -126,6 +153,8 @@ internal class AddWidgetWindow : Window
 
     private Node CreateWidgetNode(WidgetInfo info)
     {
+        uint instanceCount = WidgetManager.GetWidgetInstanceCount(info.Id);
+
         Node node = new() {
             ClassList = ["widget"],
             ChildNodes = [
@@ -137,6 +166,11 @@ internal class AddWidgetWindow : Window
                     ClassList = ["widget--description"],
                     NodeValue = info.Description,
                     Style     = new() { IsVisible = false },
+                },
+                new() {
+                    ClassList = ["widget-instance-count"],
+                    NodeValue = $"{instanceCount}",
+                    TagsList  = instanceCount > 0 ? ["used"] : [],
                 }
             ]
         };
@@ -204,6 +238,12 @@ internal class AddWidgetWindow : Window
                 }
             ),
             new(
+                ".add-widget-footer--buttons.left-side",
+                new() {
+                    Anchor = Anchor.MiddleLeft,
+                }
+            ),
+            new(
                 ".widget",
                 new() {
                     Flow            = Flow.Vertical,
@@ -237,6 +277,28 @@ internal class AddWidgetWindow : Window
                     TextOverflow = false,
                     WordWrap     = true,
                     LineHeight   = 1.5f,
+                }
+            ),
+            new(
+                ".widget-instance-count",
+                new() {
+                    Anchor        = Anchor.TopRight,
+                    Color         = new("Window.Text"),
+                    OutlineColor  = new("Window.TextOutline"),
+                    OutlineSize   = 1,
+                    FontSize      = 13,
+                    Size          = new(28, 28),
+                    TextAlign     = Anchor.MiddleCenter,
+                    BorderRadius  = 14,
+                    IsAntialiased = false,
+                    Opacity       = 0,
+                }
+            ),
+            new(
+                ".widget-instance-count:used",
+                new() {
+                    BackgroundColor = new(0x50FFFFFF),
+                    Opacity         = 1,
                 }
             ),
         ]

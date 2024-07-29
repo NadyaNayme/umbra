@@ -84,6 +84,18 @@ internal sealed partial class WidgetManager : IDisposable
                 disposable.Dispose();
             }
         }
+
+        _instances.Clear();
+        _widgetState.Clear();
+
+        foreach (var handler in OnWidgetCreated?.GetInvocationList() ?? []) OnWidgetCreated -= (Action<ToolbarWidget>)handler;
+        foreach (var handler in OnWidgetRemoved?.GetInvocationList() ?? []) OnWidgetRemoved -= (Action<ToolbarWidget>)handler;
+        foreach (var handler in OnWidgetRelocated?.GetInvocationList() ?? []) OnWidgetRelocated -= (Action<ToolbarWidget, string>)handler;
+        foreach (var handler in OnPopupOpened?.GetInvocationList() ?? []) OnPopupOpened -= (Action<WidgetPopup>)handler;
+        foreach (var handler in OnPopupClosed?.GetInvocationList() ?? []) OnPopupClosed -= (Action<WidgetPopup>)handler;
+        foreach (var handler in ProfileCreated?.GetInvocationList() ?? []) ProfileCreated -= (Action<string>)handler;
+        foreach (var handler in ProfileRemoved?.GetInvocationList() ?? []) ProfileRemoved -= (Action<string>)handler;
+        foreach (var handler in ActiveProfileChanged?.GetInvocationList() ?? []) ActiveProfileChanged -= (Action<string>)handler;
     }
 
     /// <summary>
@@ -287,6 +299,15 @@ internal sealed partial class WidgetManager : IDisposable
         }
 
         SaveState();
+    }
+
+    /// <summary>
+    /// Returns the amount of instances of a widget with the given ID that are
+    /// currently active on the toolbar.
+    /// </summary>
+    public uint GetWidgetInstanceCount(string widgetId)
+    {
+        return (uint)_instances.Values.Count(w => w.Info.Id == widgetId);
     }
 
     /// <summary>

@@ -45,6 +45,12 @@ internal partial class ItemButtonWidget
                 }
             ),
             new BooleanWidgetConfigVariable(
+                "HideIfNotOwned",
+                I18N.Translate("Widget.ItemButton.Config.HideIfNotOwned.Name"),
+                I18N.Translate("Widget.ItemButton.Config.HideIfNotOwned.Description"),
+                true
+            ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
+            new BooleanWidgetConfigVariable(
                 "Decorate",
                 I18N.Translate("Widget.ItemButton.Config.Decorate.Name"),
                 I18N.Translate("Widget.ItemButton.Config.Decorate.Description"),
@@ -54,6 +60,12 @@ internal partial class ItemButtonWidget
                 "ShowLabel",
                 I18N.Translate("Widget.ItemButton.Config.ShowLabel.Name"),
                 I18N.Translate("Widget.ItemButton.Config.ShowLabel.Description"),
+                true
+            ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
+            new BooleanWidgetConfigVariable(
+                "ShowCount",
+                I18N.Translate("Widget.ItemButton.Config.ShowCount.Name"),
+                I18N.Translate("Widget.ItemButton.Config.ShowCount.Description"),
                 true
             ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
             new SelectWidgetConfigVariable(
@@ -82,6 +94,7 @@ internal partial class ItemButtonWidget
                 -5,
                 5
             ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
+            ..DefaultToolbarWidgetConfigVariables,
         ];
     }
 }

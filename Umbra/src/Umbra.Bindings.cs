@@ -39,8 +39,9 @@ internal sealed class UmbraBindings : IDisposable
     [ConfigVariable("General.UseThreadedStyleComputation", "General", "Experimental")]
     public static bool UseThreadedStyleComputation { get; set; } = false;
 
+    private ICommandManager _commandManager;
+
     private readonly IChatGui        _chatGui;
-    private readonly ICommandManager _commandManager;
     private readonly WindowManager   _windowManager;
     private readonly WidgetManager   _widgetManager;
 
@@ -80,8 +81,8 @@ internal sealed class UmbraBindings : IDisposable
             }
         );
 
-        Framework.DalamudPlugin.UiBuilder.OpenConfigUi += () => _windowManager.Present("UmbraSettings", new SettingsWindow());
-        Framework.DalamudPlugin.UiBuilder.OpenMainUi   += () => _windowManager.Present("UmbraSettings", new SettingsWindow());
+        Framework.DalamudPlugin.UiBuilder.OpenConfigUi += OpenSettingsWindow;
+        Framework.DalamudPlugin.UiBuilder.OpenMainUi   += OpenSettingsWindow;
 
         Node.ScaleFactor = 1.0f;
 
@@ -98,6 +99,17 @@ internal sealed class UmbraBindings : IDisposable
     {
         _commandManager.RemoveHandler("/umbra");
         _commandManager.RemoveHandler("/umbra-toggle");
+        _commandManager.RemoveHandler("/umbra-toolbar-profile");
+
+        _commandManager = null!;
+
+        Framework.DalamudPlugin.UiBuilder.OpenConfigUi -= OpenSettingsWindow;
+        Framework.DalamudPlugin.UiBuilder.OpenMainUi   -= OpenSettingsWindow;
+    }
+
+    private void OpenSettingsWindow()
+    {
+        _windowManager.Present("UmbraSettings", new SettingsWindow());
     }
 
     [OnTick(interval: 60)]

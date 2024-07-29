@@ -16,6 +16,7 @@
 
 using System.Collections.Generic;
 using Dalamud.Game.Text;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using Umbra.Common;
 using Umbra.Game;
 
@@ -32,14 +33,23 @@ internal partial class LocationWidget(
     public override WidgetPopup? Popup { get; } = null;
 
     private IZoneManager? _zoneManager;
+    private IPlayer?      _player;
 
     /// <inheritdoc/>
     protected override void Initialize()
     {
         _zoneManager = Framework.Service<IZoneManager>();
+        _player      = Framework.Service<IPlayer>();
 
         SetGhost(!GetConfigValue<bool>("Decorate"));
         SetTwoLabels("Location Name", "District Name");
+
+        Node.OnClick += _ => {
+            unsafe {
+                // Open map.
+                UIModule.Instance()->ExecuteMainCommand(16);
+            }
+        };
     }
 
     /// <inheritdoc/>
@@ -55,13 +65,15 @@ internal partial class LocationWidget(
         }
 
         SetGhost(!GetConfigValue<bool>("Decorate"));
+        bool showDistrict = GetConfigValue<bool>("ShowDistrict");
+        bool useTwoLabels = GetConfigValue<bool>("UseTwoLabels");
 
-        if (GetConfigValue<bool>("ShowDistrict")) {
+        if (useTwoLabels && showDistrict) {
             SetTwoLabels(name, zone.CurrentDistrictName);
             TopLabelNode.Style.TextOffset    = new(0, GetConfigValue<int>("TextYOffsetTop"));
             BottomLabelNode.Style.TextOffset = new(0, GetConfigValue<int>("TextYOffsetBottom"));
         } else {
-            SetLabel(name);
+            SetLabel(showDistrict ? $"{name} - {zone.CurrentDistrictName}" : name);
             LabelNode.Style.TextOffset = new(0, GetConfigValue<int>("TextYOffset"));
         }
 
@@ -78,5 +90,7 @@ internal partial class LocationWidget(
                 SetTextAlignRight();
                 break;
         }
+
+        base.OnUpdate();
     }
 }

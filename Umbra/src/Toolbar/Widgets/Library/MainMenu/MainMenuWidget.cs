@@ -20,6 +20,7 @@ using System.Linq;
 using Dalamud.Game.Text;
 using Dalamud.Plugin.Services;
 using Lumina.Data;
+using System.IO;
 using Umbra.Common;
 using Umbra.Game;
 
@@ -107,7 +108,9 @@ internal sealed class MainMenuWidget(
 
             if (existingCustomIconId > 0) {
                 // Make sure the icon exists.
-                if (Framework.Service<ITextureProvider>().GetIconPath((uint)customIconId) is null) {
+                try {
+                    Framework.Service<ITextureProvider>().GetIconPath((uint)customIconId);
+                } catch(FileNotFoundException) {
                     existingCustomIconId = 0;
                 }
             }
@@ -154,7 +157,7 @@ internal sealed class MainMenuWidget(
             }
         }
 
-        Node.QuerySelector("#Label")!.Style.TextOffset = new(0, GetConfigValue<int>("TextYOffset"));
+        LabelNode.Style.TextOffset = new(0, GetConfigValue<int>("TextYOffset"));
 
         if (_useGrayscaleIcon != useGrayscaleIcon) {
             _useGrayscaleIcon = useGrayscaleIcon;
@@ -254,7 +257,7 @@ internal sealed class MainMenuWidget(
         ];
     }
 
-    public override void Dispose()
+    protected override void OnDisposed()
     {
         if (_category is null) return;
 

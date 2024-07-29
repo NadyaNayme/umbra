@@ -112,10 +112,8 @@ internal sealed partial class DtrBarWidget(
     }
 
     /// <inheritdoc/>
-    public override void Dispose()
+    protected override void OnDisposed()
     {
-        base.Dispose();
-
         if (_repository is not null) {
             _repository.OnEntryAdded   -= OnDtrBarEntryAdded;
             _repository.OnEntryRemoved -= OnDtrBarEntryRemoved;
@@ -134,8 +132,8 @@ internal sealed partial class DtrBarWidget(
 
         Node node = new() {
             ClassList = ["toolbar-widget-default", "dtr-bar-entry"],
+            SortIndex = entry.SortIndex,
             Style = new() {
-                // Anchoring items to the right renders the list in reverse order.
                 Anchor = Anchor.MiddleRight
             },
             ChildNodes = [
@@ -176,6 +174,8 @@ internal sealed partial class DtrBarWidget(
         if (entry.IsVisible) {
             SetNodeLabel(node, entry);
         }
+
+        node.SortIndex = entry.SortIndex;
     }
 
     private void SetNodeLabel(Node node, DtrBarEntry entry)

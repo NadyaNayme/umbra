@@ -60,6 +60,8 @@ internal class SelectNode : Node
         }
     }
 
+    public void SetValueInternal(string c) => _value = c;
+
     private readonly List<string> _choices;
     private          string       _value;
     private          bool         _isLocked;
@@ -144,7 +146,7 @@ internal class SelectNode : Node
 
         // Ensure the current value is amongst the choices.
         if (!_isLocked && !_choices.Contains(Value)) {
-            Logger.Warning($"Selected value [{Value}] is not amongst children in {Id}");
+            Logger.Warning($"Selected value [{Value}] is not amongst children in {Id}. Possible values: {string.Join(", ", _choices)}");
             Value = _choices.Count > 0 ? _choices[0] : "";
         }
 
@@ -166,6 +168,11 @@ internal class SelectNode : Node
 
         ImGui.PopStyleVar(4);
         ImGui.PopStyleColor(7);
+    }
+
+    protected override void OnDisposed()
+    {
+        foreach (var handler in OnValueChanged?.GetInvocationList() ?? [])  OnValueChanged -= (Action<string>)handler;
     }
 
     private Node SelectBoxNode   => QuerySelector(".select--box")!;
