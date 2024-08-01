@@ -97,7 +97,7 @@ internal partial class GearsetNode : Node
                 case "Bard":
                     Framework.Service<IChatSender>().Send("/runmacro 34 individual ");
                     break;
-                case "Machinst":
+                case "Machinist":
                     Framework.Service<IChatSender>().Send("/runmacro 35 individual ");
                     break;
                 case "Dancer":
