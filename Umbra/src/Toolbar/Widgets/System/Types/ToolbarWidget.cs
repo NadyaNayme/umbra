@@ -116,6 +116,8 @@ public abstract class ToolbarWidget(
         if (Popup is null) return;
 
         Node.OnMouseDown += _ => {
+            if (Node.IsDisabled) return;
+
             if (WidgetManager.EnableQuickSettingAccess && ImGui.GetIO().KeyCtrl && ImGui.GetIO().KeyShift) {
                 return;
             }
@@ -123,7 +125,10 @@ public abstract class ToolbarWidget(
             OpenPopup?.Invoke(this, Popup);
         };
 
-        Node.OnDelayedMouseEnter += _ => OpenPopupDelayed?.Invoke(this, Popup);
+        Node.OnDelayedMouseEnter += _ => {
+            if (Node.IsDisabled) return;
+            OpenPopupDelayed?.Invoke(this, Popup);
+        };
     }
 
     /// <summary>
@@ -292,6 +297,10 @@ public abstract class ToolbarWidget(
         Framework.Service<WidgetManager>().SaveState();
     }
 
+    /// <summary>
+    /// Returns a dictionary of color options for the user to select from in a
+    /// configuration variable.
+    /// </summary>
     protected static Dictionary<string, string> GetColorSelectOptions()
     {
         Dictionary<string, string> result = [];
@@ -301,5 +310,13 @@ public abstract class ToolbarWidget(
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Opens the settings window for this widget instance.
+    /// </summary>
+    protected void OpenSettingsWindow()
+    {
+        Framework.Service<WidgetManager>().OpenWidgetSettingsWindow(this);
     }
 }

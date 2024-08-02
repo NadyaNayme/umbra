@@ -14,19 +14,23 @@
  *     GNU Affero General Public License for more details.
  */
 
-using System.Collections.Generic;
-using Umbra.Common;
+using System;
 
 namespace Umbra.Widgets;
 
-internal partial class OnlineStatusWidget
+/// <summary>
+/// Registers the annotated class as toolbar widget type that has a dependency
+/// on the existence of another plugin with the given name.
+/// </summary>
+/// <param name="id">A unique ID of the widget.</param>
+/// <param name="name">The display name of the widget.</param>
+/// <param name="description">A description of this widget.</param>
+/// <param name="pluginName">The internal name of the plugin this widget relies on.</param>
+[AttributeUsage(AttributeTargets.Class)]
+public class InteropToolbarWidgetAttribute(string id, string name, string description, string pluginName) : Attribute
 {
-    /// <inheritdoc/>
-    protected override IEnumerable<IWidgetConfigVariable> GetConfigVariables()
-    {
-        return [
-            ..DefaultToolbarWidgetConfigVariables,
-            ..SingleLabelTextOffsetVariables,
-        ];
-    }
+    public string Id          { get; } = id;
+    public string Name        { get; } = name;
+    public string Description { get; } = description;
+    public string PluginName  { get; } = pluginName;
 }

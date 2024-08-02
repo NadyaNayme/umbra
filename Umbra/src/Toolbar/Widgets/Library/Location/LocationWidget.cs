@@ -17,6 +17,7 @@
 using System.Collections.Generic;
 using Dalamud.Game.Text;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using System.Numerics;
 using Umbra.Common;
 using Umbra.Game;
 
@@ -33,13 +34,11 @@ internal partial class LocationWidget(
     public override WidgetPopup? Popup { get; } = null;
 
     private IZoneManager? _zoneManager;
-    private IPlayer?      _player;
 
     /// <inheritdoc/>
     protected override void Initialize()
     {
         _zoneManager = Framework.Service<IZoneManager>();
-        _player      = Framework.Service<IPlayer>();
 
         SetGhost(!GetConfigValue<bool>("Decorate"));
         SetTwoLabels("Location Name", "District Name");
@@ -64,31 +63,20 @@ internal partial class LocationWidget(
             name += " " + (char)(SeIconChar.Instance1 + ((byte)zone.InstanceId - 1));
         }
 
-        SetGhost(!GetConfigValue<bool>("Decorate"));
         bool showDistrict = GetConfigValue<bool>("ShowDistrict");
         bool useTwoLabels = GetConfigValue<bool>("UseTwoLabels");
 
-        if (useTwoLabels && showDistrict) {
-            SetTwoLabels(name, zone.CurrentDistrictName);
-            TopLabelNode.Style.TextOffset    = new(0, GetConfigValue<int>("TextYOffsetTop"));
-            BottomLabelNode.Style.TextOffset = new(0, GetConfigValue<int>("TextYOffsetBottom"));
-        } else {
-            SetLabel(showDistrict ? $"{name} - {zone.CurrentDistrictName}" : name);
-            LabelNode.Style.TextOffset = new(0, GetConfigValue<int>("TextYOffset"));
+        string districtLabel = showDistrict ? zone.CurrentDistrictName : string.Empty;
+
+        if (showDistrict && GetConfigValue<bool>("ShowCoordinates")) {
+            Vector2 coords = zone.PlayerCoordinates;
+            districtLabel = $"X: {coords.X:F1}, Y: {coords.Y:F1}";
         }
 
-        var textAlign = GetConfigValue<string>("TextAlign");
-
-        switch (textAlign) {
-            case "Left":
-                SetTextAlignLeft();
-                break;
-            case "Center":
-                SetTextAlignCenter();
-                break;
-            case "Right":
-                SetTextAlignRight();
-                break;
+        if (useTwoLabels && showDistrict) {
+            SetTwoLabels(name, districtLabel);
+        } else {
+            SetLabel(showDistrict ? $"{name} - {districtLabel}" : name);
         }
 
         base.OnUpdate();
