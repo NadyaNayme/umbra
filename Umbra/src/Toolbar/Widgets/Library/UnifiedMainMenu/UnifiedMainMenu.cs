@@ -16,27 +16,21 @@ internal sealed partial class UnifiedMainMenu(
     protected override void Initialize()
     {
         Popup.OnPinnedItemsChanged += OnPinnedItemsChanged;
-
-        try {
-            List<string>? pinnedItems = JsonConvert.DeserializeObject<List<string>>(GetConfigValue<string>("PinnedItems"));
-            if (pinnedItems != null) {
-                Popup.SetPinnedItems(pinnedItems);
-            }
-        } catch {
-            Logger.Warning("Failed to parse pinned items from config.");
-            SetConfigValue("PinnedItems", "[]");
-        }
+        Popup.OnPopupOpen          += HydratePinnedItems;
     }
 
     protected override void OnDisposed()
     {
         Popup.OnPinnedItemsChanged -= OnPinnedItemsChanged;
+        Popup.OnPopupOpen          -= HydratePinnedItems;
     }
 
     protected override void OnUpdate()
     {
-        Popup.MenuHeight   = GetConfigValue<int>("FixedMenuHeight");
-        Popup.AvatarIconId = (uint)GetConfigValue<int>("AvatarIconId");
+        Popup.AvatarIconId    = (uint)GetConfigValue<int>("AvatarIconId");
+        Popup.MenuHeight      = GetConfigValue<int>("FixedMenuHeight");
+        Popup.BannerLocation  = GetConfigValue<string>("BannerLocation");
+        Popup.DesaturateIcons = GetConfigValue<bool>("DesaturateIcons");
 
         SetLabel(GetConfigValue<string>("Label"));
         SetIcon((uint)GetConfigValue<int>("IconId"));
@@ -47,5 +41,20 @@ internal sealed partial class UnifiedMainMenu(
     private void OnPinnedItemsChanged(List<string> pinnedItems)
     {
         SetConfigValue("PinnedItems", JsonConvert.SerializeObject(pinnedItems));
+    }
+
+    private void HydratePinnedItems()
+    {
+        try {
+            List<string>? pinnedItems =
+                JsonConvert.DeserializeObject<List<string>>(GetConfigValue<string>("PinnedItems"));
+
+            if (pinnedItems != null) {
+                Popup.SetPinnedItems(pinnedItems);
+            }
+        } catch {
+            Logger.Warning("Failed to parse pinned items from config.");
+            SetConfigValue("PinnedItems", "[]");
+        }
     }
 }
