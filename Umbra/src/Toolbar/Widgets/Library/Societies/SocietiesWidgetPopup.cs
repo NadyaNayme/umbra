@@ -10,22 +10,40 @@ namespace Umbra.Widgets.Library.Societies;
 
 internal sealed partial class SocietiesWidgetPopup : WidgetPopup
 {
-    public int MinItemsBeforeHorizontalView { get; set; } = 10;
+    public uint   TrackedSocietyId             { get; set; }
+    public int    MinItemsBeforeHorizontalView { get; set; } = 10;
+    public string PrimaryAction                { get; set; } = "Teleport";
 
-    public event Action<Society>? OnSocietySelected;
+    public event Action<Society?>? OnSocietySelected;
 
     private IDataManager         DataManager { get; } = Framework.Service<IDataManager>();
     private IPlayer              Player      { get; } = Framework.Service<IPlayer>();
     private ISocietiesRepository Repository  { get; } = Framework.Service<ISocietiesRepository>();
 
+    private uint? _selectedSocietyId;
+
     public SocietiesWidgetPopup()
     {
         ContextMenu = new(
             [
+                new("Track") {
+                    Label  = I18N.Translate("Widget.Societies.ContextMenu.Track"),
+                    OnClick = () => {
+                        if (null != _selectedSocietyId) OnSocietySelected?.Invoke(Repository.Societies[_selectedSocietyId.Value]);
+                    },
+                },
+                new("Untrack") {
+                    Label  = I18N.Translate("Widget.Societies.ContextMenu.Untrack"),
+                    OnClick = () => {
+                        if (null != _selectedSocietyId) OnSocietySelected?.Invoke(null);
+                    },
+                },
                 new("Teleport") {
-                    Label   = I18N.Translate("Widget.Societies.ContextMenu.Teleport"),
-                    IconId  = 60453u,
-                    OnClick = TeleportToSelectedSociety,
+                    Label  = I18N.Translate("Widget.Societies.ContextMenu.Teleport"),
+                    IconId = 60453u,
+                    OnClick = () => {
+                        if (null != _selectedSocietyId) Repository.TeleportToAetheryte(_selectedSocietyId.Value);
+                    },
                 }
             ]
         );
@@ -35,7 +53,10 @@ internal sealed partial class SocietiesWidgetPopup : WidgetPopup
     {
         var itemCount = 0;
 
-        Node.FindById("AllowanceStatus")!.NodeValue = I18N.Translate("Widget.CustomDeliveries.AllowanceStatus", 12 - Repository.WeeklyAllowance);
+        Node.FindById("AllowanceStatus")!.NodeValue = I18N.Translate(
+            "Widget.CustomDeliveries.AllowanceStatus",
+            12 - Repository.WeeklyAllowance
+        );
 
         foreach (Society society in Player.Societies.OrderBy(s => s.ExpansionId)) {
             if (society.RankId == 0) continue;

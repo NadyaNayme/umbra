@@ -67,6 +67,7 @@ internal sealed partial class PluginListWidget(
         Node.Style.Padding                            = new(0, 2);
         Node.QuerySelector("Label")!.Style.Font       = 2;
         Node.QuerySelector("Label")!.Style.TextOffset = new(0, GetConfigValue<int>("IconYOffset"));
+        Node.Tooltip = GetConfigValue<bool>("ShowTooltip") ? I18N.Translate("Widget.PluginList.Tooltip") : null;
     }
 
     private void UpdatePluginList()
