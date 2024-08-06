@@ -16,6 +16,7 @@
 
 using System;
 using Dalamud.Interface;
+using System;
 using Umbra.Common;
 using Umbra.Game;
 using Una.Drawing;
@@ -275,7 +276,7 @@ internal partial class GearsetNode : Node
 
     private string GetCurrentGearsetStatusText()
     {
-        string jobName = Gearset.JobName != Gearset.Name ? Gearset.JobName : string.Empty;
+        string jobName = !Gearset.JobName.Equals(Gearset.Name, StringComparison.OrdinalIgnoreCase) ? Gearset.JobName : string.Empty;
 
         return $"{I18N.Translate("Widget.GearsetSwitcher.JobLevel", Gearset.JobLevel)} {jobName}".TrimEnd();
     }
