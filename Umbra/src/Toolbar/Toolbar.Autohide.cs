@@ -53,6 +53,15 @@ internal partial class Toolbar
             _autoHideYTarget = IsTopAligned ? -(height + 2) : height + 2;
         }
 
+        if (IsMultiMonitorSupportEnabled()) {
+            // Don't slide the toolbar off the screen when multi-monitor
+            // support is enabled, since it may cause significant drops
+            // in framerate.
+            _autoHideOpacity += ((_isVisible ? 1 : 0) - _autoHideOpacity) * deltaTime;
+            _autoHideYOffset =  0;
+            return;
+        }
+
         _autoHideYTarget = IsTopAligned switch {
             // Correct the Y offset if the alignment changes.
             true when _autoHideYTarget > 0  => -(height + 2),
@@ -62,8 +71,6 @@ internal partial class Toolbar
 
         _autoHideOpacity += ((_isVisible ? 1 : 0) - _autoHideOpacity) * deltaTime;
         _autoHideYOffset += (_autoHideYTarget - _autoHideYOffset) * deltaTime;
-
-        _toolbarNode.Style.Opacity = _autoHideOpacity;
     }
 
     private bool IsCursorNearToolbar()
@@ -100,5 +107,10 @@ internal partial class Toolbar
                (AutoHideDuringCutscenes && player.IsInCutscene)
                || (AutoHideDuringDuty && player.IsBoundByDuty)
                || (AutoHideDuringPvp && player.IsInPvP);
+    }
+
+    private static bool IsMultiMonitorSupportEnabled()
+    {
+        return (ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable) == ImGuiConfigFlags.ViewportsEnable;
     }
 }
