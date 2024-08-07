@@ -56,8 +56,8 @@ internal sealed class MainMenuWidget(
     /// <inheritdoc/>
     protected override void Initialize()
     {
-        _repository = Framework.Service<IMainMenuRepository>();
-        Node.OnRightClick += _ => OnCategoryRightClick();
+        _repository       =  Framework.Service<IMainMenuRepository>();
+        Popup.OnPopupOpen += OnPopupOpened;
     }
 
     /// <inheritdoc/>
@@ -75,10 +75,10 @@ internal sealed class MainMenuWidget(
 
         if (_category is null) return;
 
-        var displayMode      = GetConfigValue<string>("DisplayMode");
-        var iconLocation     = GetConfigValue<string>("IconLocation");
-        var customIconId     = GetConfigValue<int>("CustomIconId");
-        var showItemIcons    = GetConfigValue<bool>("ShowItemIcons");
+        var displayMode   = GetConfigValue<string>("DisplayMode");
+        var iconLocation  = GetConfigValue<string>("IconLocation");
+        var customIconId  = GetConfigValue<int>("CustomIconId");
+        var showItemIcons = GetConfigValue<bool>("ShowItemIcons");
 
         if (_showItemIcons != showItemIcons) {
             _showItemIcons = showItemIcons;
@@ -99,7 +99,7 @@ internal sealed class MainMenuWidget(
                 // Make sure the icon exists.
                 try {
                     Framework.Service<ITextureProvider>().GetIconPath((uint)customIconId);
-                } catch(FileNotFoundException) {
+                } catch (FileNotFoundException) {
                     existingCustomIconId = 0;
                 }
             }
@@ -168,6 +168,8 @@ internal sealed class MainMenuWidget(
 
     protected override void OnDisposed()
     {
+        Popup.OnPopupOpen -= OnPopupOpened;
+
         if (_category is null) return;
 
         _category.OnItemAdded   -= OnItemAdded;
@@ -233,5 +235,11 @@ internal sealed class MainMenuWidget(
             && Popup.GetGroupItemCount(item.ItemGroupId) == 0) {
             Popup.RemoveGroup(item.ItemGroupId);
         }
+    }
+
+    private void OnPopupOpened()
+    {
+        if (string.IsNullOrEmpty(GetConfigValue<string>("Category"))) return;
+        SetCategory(_repository!.GetCategory(Enum.Parse<MenuCategory>(_selectedCategory!)));
     }
 }
