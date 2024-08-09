@@ -7,7 +7,7 @@ using Una.Drawing;
 namespace Umbra.Widgets;
 
 [Service]
-internal sealed class ContextMenuManager
+internal sealed class ContextMenuManager(UmbraDelvClipRects clipRects)
 {
     private ContextMenu? _contextMenu;
     private Action?      _closeCallback;
@@ -40,7 +40,10 @@ internal sealed class ContextMenuManager
     /// </remarks>
     public void Draw()
     {
-        if (null == _contextMenu) return;
+        if (null == _contextMenu) {
+            clipRects.RemoveClipRect("Umbra.ContextMenu");
+            return;
+        }
 
         Rect boundingBox = _contextMenu.Node.Bounds.MarginRect;
         ImGui.SetNextWindowSize(new(boundingBox.Width + 32, boundingBox.Height + 32));
@@ -54,8 +57,13 @@ internal sealed class ContextMenuManager
         ImGui.PushStyleColor(ImGuiCol.PopupBg, 0);
 
         if (ImGui.BeginPopup(_contextMenu.Id, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoSavedSettings)) {
-            var pos = ImGui.GetCursorScreenPos();
-            _contextMenu.Node.Render(ImGui.GetWindowDrawList(), new((int)pos.X + 16, (int)pos.Y + 16));
+            Vector2 cursorPos = ImGui.GetCursorScreenPos();
+            Point position    = new((int)cursorPos.X + 16, (int)cursorPos.Y + 16);
+
+            _contextMenu.Node.Render(ImGui.GetWindowDrawList(), position);
+
+            clipRects.SetClipRect("Umbra.ContextMenu", new(position.X, position.Y), new(boundingBox.Width, boundingBox.Height));
+
             ImGui.EndPopup();
         } else if (_isOpen) {
             _contextMenu = null;
@@ -65,6 +73,7 @@ internal sealed class ContextMenuManager
             ImGui.PopStyleVar(5);
 
             _closeCallback?.Invoke();
+            clipRects.RemoveClipRect("Umbra.ContextMenu");
             return;
         }
 

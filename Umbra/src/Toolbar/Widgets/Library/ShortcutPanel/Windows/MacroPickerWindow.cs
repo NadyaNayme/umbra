@@ -1,6 +1,8 @@
 ﻿using FFXIVClientStructs.FFXIV.Client.UI.Misc;
+using FFXIVClientStructs.FFXIV.Client.UI.Shell;
 using System.Linq;
 using Umbra.Common;
+using Umbra.Game.Macro;
 
 namespace Umbra.Widgets.Library.ShortcutPanel.Windows;
 
@@ -10,6 +12,7 @@ internal abstract class MacroPickerWindow : PickerWindowBase
     protected override string TypeId => _isIndividual ? "IM" : "SM";
 
     private readonly bool _isIndividual;
+    private readonly IMacroIconProvider _macroIconProvider = Framework.Service<IMacroIconProvider>();
 
     protected unsafe MacroPickerWindow(bool isIndividual)
     {
@@ -19,25 +22,27 @@ internal abstract class MacroPickerWindow : PickerWindowBase
             ? RaptureMacroModule.Instance()->Individual
             : RaptureMacroModule.Instance()->Shared;
 
-        uint index = 0;
+        int index = -1;
+
+        RaptureShellModule* rsm = RaptureShellModule.Instance();
+        if (rsm == null) return;
 
         foreach (RaptureMacroModule.Macro macro in macros) {
-            if (!macro.IsNotEmpty()) continue;
+            index++;
 
-            uint i = index;
+            if (!macro.IsNotEmpty()) continue;
+            int i = index;
 
             AddItem(
                 macro.Name.ToString(),
                 string.Join(';', macro.Lines.ToArray().Where(l => !string.IsNullOrEmpty(l.ToString()))),
-                macro.IconId,
+                _macroIconProvider.GetIconIdForMacro((byte)(isIndividual ? 0 : 1), (uint)i),
                 () => {
                     Logger.Info($"Clicked macro index: {i}");
-                    SetPickedItemId(i);
+                    SetPickedItemId((uint)i);
                     Close();
                 }
             );
-
-            index++;
         }
     }
 }
