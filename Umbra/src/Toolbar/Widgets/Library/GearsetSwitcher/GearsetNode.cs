@@ -25,13 +25,14 @@ namespace Umbra.Widgets;
 
 internal partial class GearsetNode : Node
 {
-    public const int NodeWidth  = 200;
-    public const int NodeHeight = 50;
+    public const int NodeWidth  = 240;
+    public const int NodeHeight = 40;
 
     public int    ButtonIconYOffset { get; set; }
     public string ButtonIconType    { get; set; } = "Default";
     public string BackgroundType    { get; set; } = "GradientV";
     public bool   ShowExperienceBar { get; set; } = true;
+    public bool   ShowExperiencePct { get; set; } = true;
     public bool   ShowItemLevel     { get; set; } = true;
     public bool   ShowWarningIcon   { get; set; } = true;
 
@@ -222,12 +223,12 @@ internal partial class GearsetNode : Node
         IlvlNode.Style.IsVisible = ShowItemLevel;
 
         ExpBarNode.Style.IsVisible     = !Gearset.IsMaxLevel && ShowExperienceBar;
-        ExpBarTextNode.Style.IsVisible = !Gearset.IsMaxLevel && ShowExperienceBar;
+        ExpBarTextNode.Style.IsVisible = !Gearset.IsMaxLevel && ShowExperiencePct;
         ExpBarTextNode.NodeValue       = $"{Gearset.JobXp}%";
         ExpBarFillNode.Style.Size      = new((NodeWidth - 12) * Gearset.JobXp / 100, 1);
         WarnNode.Style.IsVisible       = ShowWarningIcon;
 
-        if (!ShowExperienceBar) {
+        if (!ShowExperiencePct) {
             IlvlNode.TagsList.Remove("with-exp-bar");
         } else {
             switch (Gearset.IsMaxLevel) {
@@ -276,7 +277,9 @@ internal partial class GearsetNode : Node
 
     private string GetCurrentGearsetStatusText()
     {
-        string jobName = !Gearset.JobName.Equals(Gearset.Name, StringComparison.OrdinalIgnoreCase) ? Gearset.JobName : string.Empty;
+        string jobName = !Gearset.JobName.Equals(Gearset.Name, StringComparison.OrdinalIgnoreCase)
+            ? Gearset.JobName
+            : string.Empty;
 
         return $"{I18N.Translate("Widget.GearsetSwitcher.JobLevel", Gearset.JobLevel)} {jobName}".TrimEnd();
     }
