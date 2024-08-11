@@ -16,7 +16,6 @@
 
 using System;
 using Dalamud.Interface;
-using System;
 using Umbra.Common;
 using Umbra.Game;
 using Una.Drawing;
@@ -25,7 +24,7 @@ namespace Umbra.Widgets;
 
 internal partial class GearsetNode : Node
 {
-    public const int NodeWidth  = 240;
+    public const int NodeWidth  = 200;
     public const int NodeHeight = 40;
 
     public int    ButtonIconYOffset { get; set; }
@@ -50,10 +49,8 @@ internal partial class GearsetNode : Node
         Stylesheet = GearsetSwitcherItemStylesheet;
         ClassList  = ["gearset"];
 
-        OnMouseUp += _ =>
-        {
-            switch(gearset.JobName)
-            {
+        OnMouseUp += _ => {
+            switch (gearset.JobName) {
                 case "Paladin":
                     Framework.Service<IChatSender>().Send("/runmacro 20 individual ");
                     break;
@@ -153,9 +150,11 @@ internal partial class GearsetNode : Node
                 case "Fisher":
                     Framework.Service<IChatSender>().Send("/runmacro 72 individual ");
                     break;
-
             }
-            //_repository.EquipGearset(gearset.Id);
+            if (_repository.CurrentGearset is not null) {
+                var equippedSet = _repository.CurrentGearset.Id;
+                _repository.EquipGearset(equippedSet);
+            }
         };
 
         ChildNodes = [
