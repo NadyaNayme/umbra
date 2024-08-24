@@ -52,102 +52,135 @@ internal partial class GearsetNode : Node
         OnMouseUp += _ => {
             switch (gearset.JobName) {
                 case "Paladin":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 20 individual ");
                     break;
                 case "Warrior":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 21 individual ");
                     break;
                 case "Dark Knight":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 22 individual ");
                     break;
                 case "Gunbreaker":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 23 individual ");
                     break;
                 case "Monk":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 24 individual ");
                     break;
                 case "Dragoon":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 25 individual ");
                     break;
                 case "Ninja":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 26 individual ");
                     break;
                 case "Samurai":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 27 individual ");
                     break;
                 case "Reaper":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 28 individual ");
                     break;
                 case "Viper":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 29 individual ");
                     break;
                 case "White Mage":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 30 individual ");
                     break;
                 case "Scholar":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 31 individual ");
                     break;
                 case "Astrologian":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 32 individual ");
                     break;
                 case "Sage":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 33 individual ");
                     break;
                 case "Bard":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 34 individual ");
                     break;
                 case "Machinist":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 35 individual ");
                     break;
                 case "Dancer":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 36 individual ");
                     break;
                 case "Black Mage":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 40 individual ");
                     break;
                 case "Summoner":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 41 individual ");
                     break;
                 case "Red Mage":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 42 individual ");
                     break;
                 case "Pictomancer":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 43 individual ");
                     break;
                 case "Blue Mage":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 44 individual ");
                     break;
                 case "Carpenter":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 50 individual ");
                     break;
                 case "Blacksmith":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 51 individual ");
                     break;
                 case "Armorer":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 52 individual ");
                     break;
                 case "Goldsmith":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 53 individual ");
                     break;
                 case "Leatherworker":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 60 individual ");
                     break;
                 case "Weaver":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 61 individual ");
                     break;
                 case "Alchemist":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 62 individual ");
                     break;
                 case "Culinarian":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 63 individual ");
                     break;
                 case "Miner":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 70 individual ");
                     break;
                 case "Botanist":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 71 individual ");
                     break;
                 case "Fisher":
+                    Framework.Service<IChatSender>().Send("/macrocancel");
                     Framework.Service<IChatSender>().Send("/runmacro 72 individual ");
                     break;
             }
