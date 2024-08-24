@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Group;
@@ -190,6 +191,11 @@ internal sealed class Player : IPlayer
     public bool IsInSanctuary { get; private set; }
 
     /// <summary>
+    /// True if the player has their weapon drawn.
+    /// </summary>
+    public bool IsWeaponDrawn { get; private set; }
+
+    /// <summary>
     /// The player's current job level.
     /// </summary>
     public short Level { get; private set; }
@@ -303,6 +309,8 @@ internal sealed class Player : IPlayer
         IsJumping = _condition[ConditionFlag.Jumping] || _condition[ConditionFlag.Jumping61];
         IsDiving  = _condition[ConditionFlag.Diving];
 
+        IsWeaponDrawn = _clientState.LocalPlayer.StatusFlags.HasFlag(StatusFlags.WeaponOut);
+
         IsBoundByDuty = _condition[ConditionFlag.BoundByDuty]
             || _condition[ConditionFlag.BoundByDuty56]
             || _condition[ConditionFlag.BoundByDuty95];
@@ -310,6 +318,7 @@ internal sealed class Player : IPlayer
         IsBoundByInstancedDuty = _condition[ConditionFlag.BoundByDuty56];
 
         IsInCutscene = _condition[ConditionFlag.OccupiedInCutSceneEvent]
+            || _condition[ConditionFlag.Occupied38] // Pseudo Cutscene during combat
             || _condition[ConditionFlag.WatchingCutscene]
             || _condition[ConditionFlag.WatchingCutscene78];
 
@@ -319,7 +328,8 @@ internal sealed class Player : IPlayer
         IsInQuestEvent = _condition[ConditionFlag.OccupiedInQuestEvent]
             && _condition[ConditionFlag.OccupiedInCutSceneEvent];
 
-        CanUseTeleportAction = !IsDead && !IsCasting && !IsInCombat && !IsJumping && !IsOccupied && !IsBoundByDuty;
+        // Unknown57 is the transient state the player is in after casting and before being actually mounted.
+        CanUseTeleportAction = ActionManager.Instance()->GetActionStatus(ActionType.Action, 5) == 0;
         HomeWorldName        = _clientState.LocalPlayer.HomeWorld.GameData!.Name.ToString();
         CurrentWorldName     = _clientState.LocalPlayer.CurrentWorld.GameData!.Name.ToString();
 

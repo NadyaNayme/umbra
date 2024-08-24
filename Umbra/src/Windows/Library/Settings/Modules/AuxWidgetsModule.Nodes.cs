@@ -29,49 +29,124 @@ internal partial class AuxWidgetsModule
                     new() {
                         Id         = "AuxSettingsPanel",
                         Stylesheet = Stylesheet,
+                        Overflow   = false,
                         ChildNodes = [
-                            new CheckboxNode(
-                                "AuxEnabled",
-                                Toolbar.AuxBarEnabled,
-                                I18N.Translate("Settings.AuxWidgetsModule.Config.Enabled.Name"),
-                                I18N.Translate("Settings.AuxWidgetsModule.Config.Enabled.Description")
-                            ),
-                            new() { ClassList = ["separator"] },
-                            new CheckboxNode(
-                                "AuxDecorate",
-                                Toolbar.AuxBarDecorate,
-                                I18N.Translate("Settings.AuxWidgetsModule.Config.Decorate.Name"),
-                                I18N.Translate("Settings.AuxWidgetsModule.Config.Decorate.Description")
-                            ),
-                            new CheckboxNode(
-                                "AuxShadow",
-                                Toolbar.AuxEnableShadow,
-                                I18N.Translate("Settings.AuxWidgetsModule.Config.EnableShadow.Name"),
-                                I18N.Translate("Settings.AuxWidgetsModule.Config.EnableShadow.Description")
-                            ),
-                            new SelectNode(
-                                "AuxXAlign",
-                                Toolbar.AuxBarXAlign,
-                                ["Left", "Center", "Right"],
-                                I18N.Translate("Settings.AuxWidgetsModule.Config.XAlign.Name"),
-                                I18N.Translate("Settings.AuxWidgetsModule.Config.XAlign.Description")
-                            ),
-                            new IntegerInputNode(
-                                "AuxXPosition",
-                                0,
-                                -10000,
-                                10000,
-                                I18N.Translate("Settings.AuxWidgetsModule.Config.XPosition.Name"),
-                                I18N.Translate("Settings.AuxWidgetsModule.Config.XPosition.Description")
-                            ),
-                            new IntegerInputNode(
-                                "AuxYPosition",
-                                0,
-                                -10000,
-                                10000,
-                                I18N.Translate("Settings.AuxWidgetsModule.Config.YPosition.Name"),
-                                I18N.Translate("Settings.AuxWidgetsModule.Config.YPosition.Description")
-                            )
+                            new() {
+                                Id = "AuxSettingsList",
+                                ChildNodes = [
+                                    new CheckboxNode(
+                                        "AuxEnabled",
+                                        Toolbar.AuxBarEnabled,
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.Enabled.Name"),
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.Enabled.Description")
+                                    ),
+                                    new() { ClassList = ["separator"] },
+                                    new CheckboxNode(
+                                        "AuxDecorate",
+                                        Toolbar.AuxBarDecorate,
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.Decorate.Name"),
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.Decorate.Description")
+                                    ),
+                                    new CheckboxNode(
+                                        "AuxShadow",
+                                        Toolbar.AuxEnableShadow,
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.EnableShadow.Name"),
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.EnableShadow.Description")
+                                    ),
+                                    new SelectNode(
+                                        "AuxXAlign",
+                                        Toolbar.AuxBarXAlign,
+                                        ["Left", "Center", "Right"],
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.XAlign.Name"),
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.XAlign.Description")
+                                    ),
+                                    new IntegerInputNode(
+                                        "AuxXPosition",
+                                        0,
+                                        -10000,
+                                        10000,
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.XPosition.Name"),
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.XPosition.Description")
+                                    ),
+                                    new IntegerInputNode(
+                                        "AuxYPosition",
+                                        0,
+                                        -10000,
+                                        10000,
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.YPosition.Name"),
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.YPosition.Description")
+                                    ),
+                                    new() { ClassList = ["separator"] },
+                                    new CheckboxNode(
+                                        "AuxHideInCutscenes",
+                                        Toolbar.AuxBarHideInCutscenes,
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.AuxHideInCutscenes.Name"),
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.AuxHideInCutscenes.Description")
+                                    ),
+                                    new CheckboxNode(
+                                        "AuxHideInPvP",
+                                        Toolbar.AuxBarHideInPvP,
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.AuxHideInPvP.Name"),
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.AuxHideInPvP.Description")
+                                    ),
+                                    new CheckboxNode(
+                                        "AuxHideInDuty",
+                                        Toolbar.AuxBarHideInDuty,
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.AuxHideInDuty.Name"),
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.AuxHideInDuty.Description")
+                                    ),
+                                    new CheckboxNode(
+                                        "AuxHideInCombat",
+                                        Toolbar.AuxBarHideInCombat,
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.AuxHideInCombat.Name"),
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.AuxHideInCombat.Description")
+                                    ),
+                                    new() { ClassList = ["separator"] },
+                                    new CheckboxNode(
+                                        "AuxConditionalVisibility",
+                                        Toolbar.AuxBarIsConditionallyVisible,
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.ConditionalVisibility.Name"),
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.ConditionalVisibility.Description")
+                                    ),
+                                    new SelectNode(
+                                        "AuxHoldKey",
+                                        Toolbar.AuxBarHoldKey,
+                                        ["None", "Shift", "Ctrl", "Alt"],
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.HoldKey.Name"),
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.HoldKey.Description")
+                                    ),
+                                    new CheckboxNode(
+                                        "AuxShowInCutscene",
+                                        Toolbar.AuxBarShowInCutscene,
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.ShowInCutscene.Name"),
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.ShowInCutscene.Description")
+                                    ),
+                                    new CheckboxNode(
+                                        "AuxShowInGPose",
+                                        Toolbar.AuxBarShowInGPose,
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.ShowInGPose.Name"),
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.ShowInGPose.Description")
+                                    ),
+                                    new CheckboxNode(
+                                        "AuxShowInInstance",
+                                        Toolbar.AuxBarShowInInstance,
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.ShowInInstance.Name"),
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.ShowInInstance.Description")
+                                    ),
+                                    new CheckboxNode(
+                                        "AuxShowInCombat",
+                                        Toolbar.AuxBarShowInCombat,
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.ShowInCombat.Name"),
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.ShowInCombat.Description")
+                                    ),
+                                    new CheckboxNode(
+                                        "AuxShowUnsheathed",
+                                        Toolbar.AuxBarShowUnsheathed,
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.AuxShowUnsheathed.Name"),
+                                        I18N.Translate("Settings.AuxWidgetsModule.Config.AuxShowUnsheathed.Description")
+                                    ),
+                                ]
+                            },
                         ]
                     },
                     new() {
@@ -98,8 +173,7 @@ internal partial class AuxWidgetsModule
                                 ChildNodes = [
                                     new() {
                                         ClassList = ["widgets-column--add-new--label"],
-                                        NodeValue =
-                                            $"{SeIconChar.BoxedPlus.ToIconString()} {I18N.Translate("Settings.WidgetsModule.AddWidget")}",
+                                        NodeValue = $"{SeIconChar.BoxedPlus.ToIconString()} {I18N.Translate("Settings.WidgetsModule.AddWidget")}",
                                         InheritTags = true,
                                     }
                                 ]
@@ -118,6 +192,7 @@ internal partial class AuxWidgetsModule
 
         Node.QuerySelector(".module-header")!.Style.Size    = new(size.Width - 30, 0);
         Node.QuerySelector("#AuxSettingsPanel")!.Style.Size = new(colSize * 2, size.Height - 88);
+        Node.QuerySelector("#AuxSettingsList")!.Style.Size  = new((colSize * 2) - 8, 0);
 
         foreach (var separator in Node.QuerySelectorAll(".separator")) {
             separator.Style.Size = new(colSize * 2, 1);
@@ -227,12 +302,23 @@ internal partial class AuxWidgetsModule
         return node;
     }
 
-    private Node             AuxWidgetAddNode   => Node.QuerySelector("#AuxWidgetAdd")!;
-    private CheckboxNode     AuxEnabledNode     => (CheckboxNode)Node.QuerySelector("AuxEnabled")!;
-    private CheckboxNode     AuxDecorateNode    => (CheckboxNode)Node.QuerySelector("AuxDecorate")!;
-    private IntegerInputNode AuxXPositionNode   => (IntegerInputNode)Node.QuerySelector("AuxXPosition")!;
-    private IntegerInputNode AuxYPositionNode   => (IntegerInputNode)Node.QuerySelector("AuxYPosition")!;
-    private SelectNode       AuxXAlignNode      => (SelectNode)Node.QuerySelector("AuxXAlign")!;
-    private CheckboxNode     AuxShadowNode      => (CheckboxNode)Node.QuerySelector("AuxShadow")!;
-    private Node             AuxWidgetsListNode => Node.QuerySelector(".widgets-column--list")!;
+    private Node AuxWidgetAddNode => Node.QuerySelector("#AuxWidgetAdd")!;
+    private CheckboxNode AuxEnabledNode => Node.QuerySelector<CheckboxNode>("AuxEnabled")!;
+    private CheckboxNode AuxDecorateNode => Node.QuerySelector<CheckboxNode>("AuxDecorate")!;
+    private IntegerInputNode AuxXPositionNode => Node.QuerySelector<IntegerInputNode>("AuxXPosition")!;
+    private IntegerInputNode AuxYPositionNode => Node.QuerySelector<IntegerInputNode>("AuxYPosition")!;
+    private SelectNode AuxXAlignNode => Node.QuerySelector<SelectNode>("AuxXAlign")!;
+    private CheckboxNode AuxShadowNode => Node.QuerySelector<CheckboxNode>("AuxShadow")!;
+    private CheckboxNode AuxHideInCutscenesNode => Node.QuerySelector<CheckboxNode>("AuxHideInCutscenes")!;
+    private CheckboxNode AuxHideInPvPNode => Node.QuerySelector<CheckboxNode>("AuxHideInPvP")!;
+    private CheckboxNode AuxHideInDutyNode => Node.QuerySelector<CheckboxNode>("AuxHideInDuty")!;
+    private CheckboxNode AuxHideInCombatNode => Node.QuerySelector<CheckboxNode>("AuxHideInCombat")!;
+    private CheckboxNode AuxConditionalVisibilityNode => Node.QuerySelector<CheckboxNode>("AuxConditionalVisibility")!;
+    private SelectNode AuxHoldKeyNode => Node.QuerySelector<SelectNode>("AuxHoldKey")!;
+    private CheckboxNode AuxShowInCutsceneNode => Node.QuerySelector<CheckboxNode>("AuxShowInCutscene")!;
+    private CheckboxNode AuxShowInGPoseNode => Node.QuerySelector<CheckboxNode>("AuxShowInGPose")!;
+    private CheckboxNode AuxShowInInstanceNode => Node.QuerySelector<CheckboxNode>("AuxShowInInstance")!;
+    private CheckboxNode AuxShowInCombatNode => Node.QuerySelector<CheckboxNode>("AuxShowInCombat")!;
+    private CheckboxNode AuxShowUnsheathedNode => Node.QuerySelector<CheckboxNode>("AuxShowUnsheathed")!;
+    private Node AuxWidgetsListNode => Node.QuerySelector(".widgets-column--list")!;
 }

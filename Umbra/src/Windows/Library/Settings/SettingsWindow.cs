@@ -90,5 +90,11 @@ internal partial class SettingsWindow : Window
     protected override void OnClose()
     {
         _currentModule?.OnClose();
+
+        foreach (var module in _modules.Values) {
+            module.Dispose();
+        }
+
+        _modules.Clear();
     }
 }

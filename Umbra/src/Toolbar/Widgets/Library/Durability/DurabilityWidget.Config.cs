@@ -67,6 +67,7 @@ internal partial class DurabilityWidget
                 new() {
                     { "Full", I18N.Translate("Widget.Durability.Config.DisplayMode.Option.Full") },
                     { "Short", I18N.Translate("Widget.Durability.Config.DisplayMode.Option.Short") },
+                    { "ShortStacked", I18N.Translate("Widget.Durability.Config.DisplayMode.Option.ShortStacked") },
                     { "DurabilityOnly", I18N.Translate("Widget.Durability.Config.DisplayMode.Option.DurabilityOnly") },
                     { "SpiritbondOnly", I18N.Translate("Widget.Durability.Config.DisplayMode.Option.SpiritbondOnly") },
                     { "IconOnly", I18N.Translate("Widget.Durability.Config.DisplayMode.Option.IconOnly") }
@@ -93,6 +94,30 @@ internal partial class DurabilityWidget
                     { "Right", I18N.Translate("Widget.Durability.Config.IconLocation.Option.Right") },
                     { "Hidden", I18N.Translate("Widget.Durability.Config.IconLocation.Option.Hidden") },
                 }
+            ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
+            new IntegerWidgetConfigVariable(
+                "TextSize",
+                I18N.Translate("Widgets.DefaultToolbarWidget.Config.TextSize.Name"),
+                I18N.Translate("Widgets.DefaultToolbarWidget.Config.TextSize.Description"),
+                13,
+                8,
+                24
+            ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
+            new IntegerWidgetConfigVariable(
+                "TextSizeTop",
+                I18N.Translate("Widgets.DefaultToolbarWidget.Config.TextSizeTop.Name"),
+                I18N.Translate("Widgets.DefaultToolbarWidget.Config.TextSizeTop.Description"),
+                12,
+                8,
+                24
+            ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
+            new IntegerWidgetConfigVariable(
+                "TextSizeBottom",
+                I18N.Translate("Widgets.DefaultToolbarWidget.Config.TextSizeBottom.Name"),
+                I18N.Translate("Widgets.DefaultToolbarWidget.Config.TextSizeBottom.Description"),
+                9,
+                8,
+                24
             ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
             new IntegerWidgetConfigVariable(
                 "TextYOffset",

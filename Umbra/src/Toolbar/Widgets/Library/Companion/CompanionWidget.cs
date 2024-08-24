@@ -58,6 +58,8 @@ internal sealed partial class CompanionWidget(
             return;
         }
 
+        Popup.ShowFoodButtons = GetConfigValue<bool>("ShowFoodButtons");
+
         Node.Style.IsVisible = true;
 
         SetDisabled(!Companion.HasGysahlGreens || !Companion.CanSummon());

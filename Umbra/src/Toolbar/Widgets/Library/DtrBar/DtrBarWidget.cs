@@ -14,6 +14,7 @@
  *     GNU Affero General Public License for more details.
  */
 
+using Dalamud.Game.Text.SeStringHandling;
 using System.Collections.Generic;
 using Dalamud.Plugin.Services;
 using Umbra.Common;
@@ -59,7 +60,7 @@ internal sealed partial class DtrBarWidget(
         Node.Style.Gap  = GetConfigValue<int>("ItemSpacing");
         Node.Style.Size = new(0, SafeHeight);
 
-        foreach (Node node in Node.QuerySelectorAll(".dtr-bar-entry")) {
+        foreach ((string id, Node node) in _entries) {
             switch (decorateMode) {
                 case "Always":
                     node.TagsList.Remove("ghost");
@@ -75,13 +76,16 @@ internal sealed partial class DtrBarWidget(
                     break;
             }
 
-            node.QuerySelector("Label")!.Style.TextOffset = new(0, textOffset);
-            node.Style.Size                               = new(0, SafeHeight);
+            node.Style.Size = new(0, SafeHeight);
 
+            var entry     = _repository!.Get(id);
             var labelNode = node.FindById("Label");
 
-            if (null != labelNode) {
-                labelNode.Style.FontSize = (SafeHeight / 2) - 2;
+            if (null != labelNode && entry is { IsVisible: true }) {
+                SetNodeLabel(node, entry);
+                labelNode.Style.MaxWidth   = MaxTextWidth;
+                labelNode.Style.TextOffset = new(0, textOffset);
+                labelNode.Style.FontSize   = GetConfigValue<int>("TextSize");
             }
         }
 
@@ -141,6 +145,11 @@ internal sealed partial class DtrBarWidget(
                     Id          = "Label",
                     NodeValue   = entry.Text,
                     InheritTags = true,
+                    Style = new() {
+                        MaxWidth     = MaxTextWidth,
+                        WordWrap     = false,
+                        TextOverflow = false,
+                    }
                 }
             ]
         };
@@ -182,6 +191,16 @@ internal sealed partial class DtrBarWidget(
 
     private void SetNodeLabel(Node node, DtrBarEntry entry)
     {
-        node.FindById("Label")!.NodeValue = GetConfigValue<bool>("PlainText") ? entry.Text.TextValue : entry.Text;
+        var labelNode = node.FindById("Label");
+        if (labelNode == null) return;
+
+        labelNode.NodeValue = GetConfigValue<bool>("PlainText")
+            ? entry.Text?.TextValue ?? ""
+            : entry.Text;
     }
+
+    private int? MaxTextWidth => GetConfigValue<int>("MaxTextWidth") switch {
+        0 => null,
+        _ => GetConfigValue<int>("MaxTextWidth")
+    };
 }

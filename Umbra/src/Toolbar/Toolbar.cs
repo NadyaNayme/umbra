@@ -14,13 +14,15 @@
  *     GNU Affero General Public License for more details.
  */
 
+using Dalamud.Plugin.Services;
+using System;
 using Umbra.Common;
 using Umbra.Game;
 
 namespace Umbra;
 
 [Service]
-internal partial class Toolbar(IPlayer player, UmbraVisibility visibility)
+internal sealed partial class Toolbar(IPlayer player, UmbraVisibility visibility, IKeyState keyState) : IDisposable
 {
     [OnDraw(executionOrder: int.MaxValue)]
     private void DrawToolbar()
@@ -30,8 +32,14 @@ internal partial class Toolbar(IPlayer player, UmbraVisibility visibility)
         UpdateToolbarWidth();
         UpdateToolbarNodeClassList();
         UpdateToolbarAutoHideOffset();
-        RenderToolbarNode();
 
+        RenderToolbarNode();
         RenderAuxBarNode();
+    }
+
+    public void Dispose()
+    {
+        _toolbarNode.Dispose();
+        _auxBarNode.Dispose();
     }
 }

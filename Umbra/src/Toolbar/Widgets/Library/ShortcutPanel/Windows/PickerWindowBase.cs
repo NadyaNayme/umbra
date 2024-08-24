@@ -1,10 +1,5 @@
-﻿using Dalamud.Plugin.Services;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using Lumina.Excel.GeneratedSheets;
-using System;
-using System.Linq;
+﻿using System;
 using System.Numerics;
-using Umbra.Common;
 using Umbra.Windows;
 using Umbra.Windows.Components;
 using Una.Drawing;
@@ -57,6 +52,11 @@ internal abstract partial class PickerWindowBase : Window
             node.Style.Size                              = new(ContentSize.Width - 30, 42);
             node.QuerySelector(".item-name")!.Style.Size = new(ContentSize.Width - 82, 0);
             node.QuerySelector(".item-command")!.Style.Size = new(ContentSize.Width - 82, 0);
+        }
+
+        Node? tooManyResultsMessage = Node.QuerySelector("#TooManyResultsMessage");
+        if (tooManyResultsMessage != null) {
+            tooManyResultsMessage.Style.Size = new(ContentSize.Width - 30, 0);
         }
     }
 

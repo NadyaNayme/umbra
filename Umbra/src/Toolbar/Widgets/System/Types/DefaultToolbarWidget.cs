@@ -80,12 +80,9 @@ public abstract class DefaultToolbarWidget(
 
             var halfSize = (int)Math.Ceiling(SafeHeight / 2f);
 
-            labelNode.Style.Size           = new(labelNode.Style.Size?.Width ?? 0, SafeHeight);
-            labelNode.Style.FontSize       = (halfSize / 2) + 6;
-            topLabelNode.Style.Size        = new(topLabelNode.Style.Size?.Width ?? 0, halfSize - 2);
-            topLabelNode.Style.FontSize    = (halfSize / 2) + 4;
-            bottomLabelNode.Style.Size     = new(bottomLabelNode.Style.Size?.Width ?? 0, halfSize - 2);
-            bottomLabelNode.Style.FontSize = (halfSize / 2) + 2;
+            labelNode.Style.Size       = new(labelNode.Style.Size?.Width ?? 0, SafeHeight);
+            topLabelNode.Style.Size    = new(topLabelNode.Style.Size?.Width ?? 0, halfSize - 2);
+            bottomLabelNode.Style.Size = new(bottomLabelNode.Style.Size?.Width ?? 0, halfSize - 2);
         }
     };
 
@@ -100,11 +97,15 @@ public abstract class DefaultToolbarWidget(
         SetIconSize(GetConfigValue<int>("IconSize"));
         SetIconColor(new(GetConfigValue<uint>("IconColor")));
 
-        var displayMode    = GetConfigValue<string>("DisplayMode");
-        var iconLocation   = GetConfigValue<string>("IconLocation");
-        var desaturateIcon = GetConfigValue<bool>("DesaturateIcon");
-        var iconOffset     = new Vector2(0, GetConfigValue<int>("IconYOffset"));
-        var hPadding       = GetConfigValue<int>("ButtonPadding");
+        var  displayMode    = GetConfigValue<string>("DisplayMode");
+        var  iconLocation   = GetConfigValue<string>("IconLocation");
+        var  desaturateIcon = GetConfigValue<bool>("DesaturateIcon");
+        var  iconOffset     = new Vector2(0, GetConfigValue<int>("IconYOffset"));
+        var  hPadding       = GetConfigValue<int>("ButtonPadding");
+        int  textSize       = HasConfigVariable("TextSize") ? GetConfigValue<int>("TextSize") : 13;
+        int  textSizeTop    = HasConfigVariable("TextSizeTop") ? GetConfigValue<int>("TextSizeTop") : 12;
+        int  textSizeBottom = HasConfigVariable("TextSizeBottom") ? GetConfigValue<int>("TextSizeBottom") : 9;
+        int? maxTextWidth   = HasConfigVariable("MaxTextWidth") ? GetConfigValue<int>("MaxTextWidth") : null;
 
         if (null != _singleIconId) {
             if (displayMode is "TextAndIcon" or "IconOnly") {
@@ -152,19 +153,26 @@ public abstract class DefaultToolbarWidget(
             || !string.IsNullOrEmpty(TopLabelNode.NodeValue?.ToString())
             || !string.IsNullOrEmpty(BottomLabelNode.NodeValue?.ToString());
 
-        bool liv = LeftIconNode.Style.IsVisible ?? false;
-        bool riv = RightIconNode.Style.IsVisible ?? false;
+        bool liv = LeftIconNode.Style.IconId is > 0;
+        bool riv = RightIconNode.Style.IconId is > 0;
+        bool ltv = !string.IsNullOrEmpty(TopLabelNode.NodeValue?.ToString());
 
         LabelNode.Style.IsVisible          = displayMode is not "IconOnly" && hasLabel;
+        LabelNode.Style.FontSize           = textSize;
+        LabelNode.Style.MaxWidth           = maxTextWidth;
         LeftIconNode.Style.ImageOffset     = iconOffset;
         RightIconNode.Style.ImageOffset    = iconOffset;
         LeftIconNode.Style.ImageGrayscale  = Node.IsDisabled || desaturateIcon;
         RightIconNode.Style.ImageGrayscale = Node.IsDisabled || desaturateIcon;
         LeftIconNode.Style.Margin          = new(0);
         RightIconNode.Style.Margin         = new(0);
-        LabelNode.Style.Padding            = new(0, riv ? 0 : 5, 0, liv ? 0 : 5);
-        TopLabelNode.Style.Padding         = new(0, 1);
-        BottomLabelNode.Style.Padding      = new(0, 1);
+        LabelNode.Style.Padding            = ltv ? new(0) : new(0, riv ? 0 : isGhost ? 0 : 5, 0, liv ? 0 : isGhost ? 0 : 5);
+        TopLabelNode.Style.MaxWidth        = maxTextWidth;
+        TopLabelNode.Style.Padding         = new(0, riv ? 0 : isGhost ? 0 : 5, 0, liv ? 0 : isGhost ? 0 : 5);
+        BottomLabelNode.Style.MaxWidth     = maxTextWidth;
+        BottomLabelNode.Style.Padding      = new(0, riv ? 0 : isGhost ? 0 : 5, 0, liv ? 0 : isGhost ? 0 : 5);
+        TopLabelNode.Style.FontSize        = textSizeTop;
+        BottomLabelNode.Style.FontSize     = textSizeBottom;
         Node.Style.Padding                 = new(0, isGhost ? hPadding : hPadding + 3);
         Node.Tooltip                       = displayMode is "IconOnly" ? LabelNode.NodeValue?.ToString() : null;
     }
@@ -197,13 +205,13 @@ public abstract class DefaultToolbarWidget(
 
     protected void SetLeftIcon(uint? iconId)
     {
-        LeftIconNode.Style.IsVisible = iconId != null;
+        LeftIconNode.Style.IsVisible = iconId is > 0;
         LeftIconNode.Style.IconId    = iconId;
     }
 
     protected void SetRightIcon(uint? iconId)
     {
-        RightIconNode.Style.IsVisible = iconId != null;
+        RightIconNode.Style.IsVisible = iconId is > 0;
         RightIconNode.Style.IconId    = iconId;
     }
 
@@ -395,6 +403,22 @@ public abstract class DefaultToolbarWidget(
 
     protected IList<IWidgetConfigVariable> SingleLabelTextOffsetVariables { get; } = [
         new IntegerWidgetConfigVariable(
+            "MaxTextWidth",
+            I18N.Translate("Widgets.DefaultToolbarWidget.Config.MaxTextWidth.Name"),
+            I18N.Translate("Widgets.DefaultToolbarWidget.Config.MaxTextWidth.Description"),
+            0,
+            0,
+            1000
+        ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
+        new IntegerWidgetConfigVariable(
+            "TextSize",
+            I18N.Translate("Widgets.DefaultToolbarWidget.Config.TextSize.Name"),
+            I18N.Translate("Widgets.DefaultToolbarWidget.Config.TextSize.Description"),
+            13,
+            8,
+            24
+        ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
+        new IntegerWidgetConfigVariable(
             "TextYOffset",
             I18N.Translate("Widgets.DefaultToolbarWidget.Config.TextYOffset.Name"),
             I18N.Translate("Widgets.DefaultToolbarWidget.Config.TextYOffset.Description"),
@@ -405,6 +429,22 @@ public abstract class DefaultToolbarWidget(
     ];
 
     protected IList<IWidgetConfigVariable> TwoLabelTextOffsetVariables { get; } = [
+        new IntegerWidgetConfigVariable(
+            "TextSizeTop",
+            I18N.Translate("Widgets.DefaultToolbarWidget.Config.TextSizeTop.Name"),
+            I18N.Translate("Widgets.DefaultToolbarWidget.Config.TextSizeTop.Description"),
+            12,
+            8,
+            24
+        ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
+        new IntegerWidgetConfigVariable(
+            "TextSizeBottom",
+            I18N.Translate("Widgets.DefaultToolbarWidget.Config.TextSizeBottom.Name"),
+            I18N.Translate("Widgets.DefaultToolbarWidget.Config.TextSizeBottom.Description"),
+            9,
+            8,
+            24
+        ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
         new IntegerWidgetConfigVariable(
             "TextYOffsetTop",
             I18N.Translate("Widgets.DefaultToolbarWidget.Config.TextYOffsetTop.Name"),

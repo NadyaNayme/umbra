@@ -53,6 +53,7 @@ public abstract class WidgetPopup : IDisposable
     public void Dispose()
     {
         OnDisposed();
+
         ContextMenu?.Dispose();
         _popupNode.Dispose();
 
@@ -125,7 +126,9 @@ public abstract class WidgetPopup : IDisposable
                 break;
         }
 
-        switch (!Toolbar.IsStretched || WidgetManager.EnforceFloatingPopups) {
+        bool isAuxWidget = activator.Node.ParentNode!.Id == "aux";
+
+        switch (!Toolbar.IsStretched || WidgetManager.EnforceFloatingPopups || isAuxWidget) {
             case true when !_popupNode.TagsList.Contains("floating"):
                 _popupNode.TagsList.Add("floating");
                 break;

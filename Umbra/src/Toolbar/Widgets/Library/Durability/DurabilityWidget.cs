@@ -15,11 +15,9 @@
  */
 
 using System.Collections.Generic;
-using Dalamud.Interface;
 using Dalamud.Plugin.Services;
 using Dalamud.Utility;
 using Lumina.Excel.GeneratedSheets;
-using System.Linq;
 using Umbra.Common;
 using Umbra.Game;
 
@@ -51,6 +49,7 @@ internal partial class DurabilityWidget(
     protected override void OnUpdate()
     {
         SetGhost(!GetConfigValue<bool>("Decorate"));
+        SetIconSize(0);
 
         if (GetConfigValue<bool>("HideWhenOkay")
             && Player.Equipment.LowestDurability > GetConfigValue<int>("WarningThreshold")
@@ -100,6 +99,9 @@ internal partial class DurabilityWidget(
             case "Short":
                 SetLabel($"{Player.Equipment.LowestDurability}% / {Player.Equipment.HighestSpiritbond}%");
                 break;
+            case "ShortStacked":
+                SetTwoLabels($"{Player.Equipment.LowestDurability}%", $"{Player.Equipment.HighestSpiritbond}%");
+                break;
             case "DurabilityOnly":
                 SetLabel($"{Player.Equipment.LowestDurability}%");
                 break;
@@ -116,6 +118,9 @@ internal partial class DurabilityWidget(
         LabelNode.Style.TextOffset         = new(0, GetConfigValue<int>("TextYOffset"));
         TopLabelNode.Style.TextOffset      = new(0, GetConfigValue<int>("TextYOffsetTop"));
         BottomLabelNode.Style.TextOffset   = new(0, GetConfigValue<int>("TextYOffsetBottom"));
+        LabelNode.Style.FontSize           = GetConfigValue<int>("TextSize");
+        TopLabelNode.Style.FontSize        = GetConfigValue<int>("TextSizeTop");
+        BottomLabelNode.Style.FontSize     = GetConfigValue<int>("TextSizeBottom");
 
         bool hasText = GetConfigValue<string>("DisplayMode") != "IconOnly";
         LeftIconNode.Style.Margin  = new(0, 0, 0, hasText ? -2 : 0);

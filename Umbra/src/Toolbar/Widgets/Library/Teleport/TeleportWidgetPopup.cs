@@ -17,20 +17,22 @@
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
-using System;
+using System.Linq;
 using Umbra.Common;
 using Umbra.Game;
 using Una.Drawing;
 
 namespace Umbra.Widgets;
 
-internal partial class TeleportWidgetPopup : WidgetPopup, IDisposable
+internal partial class TeleportWidgetPopup : WidgetPopup
 {
     public int    MinimumColumns         { get; set; } = 1;
     public string ExpansionMenuPosition  { get; set; } = "Auto";
+    public bool   OpenCategoryOnHover    { get; set; }
     public bool   ShowNotification       { get; set; }
     public bool   OpenFavoritesByDefault { get; set; }
     public bool   ShowMapNames           { get; set; }
+    public int    ColumnWidth            { get; set; } = 300;
 
     private string               _selectedExpansion = string.Empty;
     private TeleportDestination? _selectedDestination;
@@ -39,30 +41,6 @@ internal partial class TeleportWidgetPopup : WidgetPopup, IDisposable
     {
         ConfigManager.CvarChanged += OnCvarChanged;
         LoadFavorites();
-    }
-
-    protected override void OnDisposed()
-    {
-        ConfigManager.CvarChanged -= OnCvarChanged;
-    }
-
-    /// <inheritdoc/>
-    protected override bool CanOpen()
-    {
-        return Framework.Service<IPlayer>().CanUseTeleportAction;
-    }
-
-    /// <inheritdoc/>
-    protected override void OnOpen()
-    {
-        HydrateAetherytePoints();
-        BuildNodes();
-        LoadFavorites();
-
-        ActivateExpansion(OpenFavoritesByDefault && Favorites.Count > 0
-            ? "Favorites"
-            : _selectedExpansion, true
-        );
 
         ContextMenu = new(
             [
@@ -93,6 +71,33 @@ internal partial class TeleportWidgetPopup : WidgetPopup, IDisposable
                 }
             ]
         );
+    }
+
+    protected override void OnDisposed()
+    {
+        ConfigManager.CvarChanged -= OnCvarChanged;
+    }
+
+    /// <inheritdoc/>
+    protected override bool CanOpen()
+    {
+        return Framework.Service<IPlayer>().CanUseTeleportAction;
+    }
+
+    /// <inheritdoc/>
+    protected override void OnOpen()
+    {
+        HydrateAetherytePoints();
+        BuildNodes();
+        LoadFavorites();
+        LoadOthers();
+
+        ActivateExpansion(
+            OpenFavoritesByDefault && Favorites.Count > 0
+                ? "Favorites"
+                : _selectedExpansion,
+            true
+        );
 
         Node.QuerySelector("#DestinationList")!.TagsList.Add(ExpansionMenuPosition == "Left" ? "right" : "left");
         Node.QuerySelector("#ExpansionList")!.TagsList.Add(ExpansionMenuPosition == "Left" ? "left" : "right");
@@ -107,11 +112,11 @@ internal partial class TeleportWidgetPopup : WidgetPopup, IDisposable
     /// <inheritdoc/>
     protected override void OnClose()
     {
-        ExpansionLists.Clear();
-
         _expansions.Clear();
         _destinations.Clear();
         _selectedExpansion = string.Empty;
+
+        foreach (Node node in Node.ChildNodes.ToArray()) node.Dispose();
     }
 
     private void ActivateExpansion(string key, bool force = false)

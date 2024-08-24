@@ -70,7 +70,8 @@ internal sealed class SocietiesRepository : ISocietiesRepository, IDisposable
 
         lock (Societies) {
             for (var i = 1; i < qm->BeastReputation.Length + 1; i++) {
-                (BeastTribe tribe, BeastReputationRank rank, ushort currentRep, ushort requiredRep) =
+                (BeastTribe tribe, BeastReputationRank rankRow, ushort currentRep, ushort requiredRep, byte rank,
+                    byte maxRank, string rankName) =
                     GetTribe((byte)(i));
 
                 string name = tribe.Name.ToString();
@@ -78,8 +79,10 @@ internal sealed class SocietiesRepository : ISocietiesRepository, IDisposable
                 Societies[tribe.RowId] = new() {
                     Id             = tribe.RowId,
                     Name           = name[0].ToString().ToUpper() + name[1..],
-                    RankId         = rank.RowId,
-                    Rank           = rank.AlliedNames.ToString(),
+                    Rank           = rank,
+                    MaxRank        = maxRank,
+                    RankName       = rankName,
+                    RankColor      = rankRow.Color.Row,
                     ExpansionId    = tribe.Expansion.Row,
                     ExpansionName  = tribe.Expansion.Value!.Name.ToString(),
                     IconId         = tribe.Icon,
@@ -97,16 +100,18 @@ internal sealed class SocietiesRepository : ISocietiesRepository, IDisposable
     /// <inheritdoc/>
     public unsafe void TeleportToAetheryte(uint societyId)
     {
-        if (!Framework.Service<IPlayer>().CanUseTeleportAction ||
-            !SocietyToAetheryteId.TryGetValue(societyId, out uint aetheryteId)
-        ) {
+        if (!Framework.Service<IPlayer>().CanUseTeleportAction
+            || !SocietyToAetheryteId.TryGetValue(societyId, out uint aetheryteId)
+           ) {
             return;
         }
 
         Telepo.Instance()->Teleport(aetheryteId, 0);
     }
 
-    private unsafe (BeastTribe tribe, BeastReputationRank rank, ushort currentRep, ushort neededRep) GetTribe(byte index)
+    private unsafe (BeastTribe tribe, BeastReputationRank rankRow, ushort currentRep, ushort neededRep, byte rank,
+        byte maxRank, string rankName)
+        GetTribe(byte index)
     {
         QuestManager*       qm    = QuestManager.Instance();
         BeastReputationWork tribe = qm->BeastReputation[index - 1];
@@ -115,11 +120,25 @@ internal sealed class SocietiesRepository : ISocietiesRepository, IDisposable
         ushort              currentRep = tribe.Value;
         var                 tribeRow   = DataManager.GetExcelSheet<BeastTribe>()!.GetRow(index)!;
         BeastReputationRank rankRow    = DataManager.GetExcelSheet<BeastReputationRank>()!.GetRow(rank)!;
+        byte                maxRank    = tribeRow.MaxRank;
+        string              rankName   = rankRow.AlliedNames.ToString();
+        ushort              neededRep  = rankRow.RequiredReputation;
 
-        if (rank >= tribeRow.MaxRank) {
-            return (tribeRow, rankRow, currentRep, 0);
+        if (tribeRow.Expansion.Row != 0
+            && tribeRow.Unknown7 != 0
+            && QuestManager.IsQuestComplete(tribeRow.Unknown7))
+        {
+            rank++;
+            rankName  = rankRow.Name.ToString();
+            neededRep = 0;
+        }
+        else if (tribeRow.Expansion.Row == 0) {
+            rankName = rankRow.Name.ToString();
         }
 
-        return (tribeRow, rankRow, currentRep, rankRow.RequiredReputation);
+        if (rank > maxRank)
+            maxRank = rank;
+
+        return (tribeRow, rankRow, currentRep, neededRep, rank, maxRank, rankName);
     }
 }

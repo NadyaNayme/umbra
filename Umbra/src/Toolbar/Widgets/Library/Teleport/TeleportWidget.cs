@@ -19,6 +19,7 @@ using Dalamud.Plugin.Services;
 using Lumina.Excel.GeneratedSheets;
 using Umbra.Common;
 using Umbra.Game;
+using Una.Drawing;
 
 namespace Umbra.Widgets;
 
@@ -46,15 +47,24 @@ internal sealed partial class TeleportWidget(
 
         TeleportName = teleportAction.Name.ToString();
         TeleportIcon = (uint)teleportAction.Icon;
+
+        Node.OnRightClick += OpenTeleportWindow;
+    }
+
+    protected override void OnDisposed()
+    {
+        Node.OnRightClick -= OpenTeleportWindow;
     }
 
     protected override void OnUpdate()
     {
         Popup.ExpansionMenuPosition  = GetExpansionMenuPosition();
         Popup.MinimumColumns         = GetConfigValue<int>("MinimumColumns");
+        Popup.OpenCategoryOnHover    = GetConfigValue<bool>("OpenCategoryOnHover");
         Popup.OpenFavoritesByDefault = GetConfigValue<bool>("OpenFavoritesByDefault");
         Popup.ShowMapNames           = GetConfigValue<bool>("ShowMapNames");
         Popup.ShowNotification       = GetConfigValue<bool>("ShowNotification");
+        Popup.ColumnWidth            = GetConfigValue<int>("ColumnWidth");
 
         SetDisabled(!Player.CanUseTeleportAction);
         SetLabel(TeleportName);
@@ -71,5 +81,10 @@ internal sealed partial class TeleportWidget(
             "Right" => "Right",
             _ => "Top"
         };
+    }
+
+    private void OpenTeleportWindow(Node _)
+    {
+        Player.UseGeneralAction(7);
     }
 }

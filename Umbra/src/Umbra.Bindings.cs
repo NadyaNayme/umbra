@@ -37,7 +37,7 @@ internal sealed class UmbraBindings : IDisposable
     public static bool IsFirstTimeStart { get; set; } = true;
 
     [ConfigVariable("General.UseThreadedStyleComputation", "General", "Experimental")]
-    public static bool UseThreadedStyleComputation { get; set; } = false;
+    public static bool UseThreadedStyleComputation { get; set; } = true;
 
     [ConfigVariable("General.EnableHitchWarnings", "General", "DeveloperTools")]
     public static bool EnableHitchWarnings { get; set; } = false;
@@ -47,6 +47,9 @@ internal sealed class UmbraBindings : IDisposable
 
     [ConfigVariable("General.DrawHitchThresholdMs", "General", "DeveloperTools", min: 0.1f, max: 50f)]
     public static float DrawHitchThresholdMs { get; set; } = 5.0f;
+
+    [ConfigVariable("General.UseGameMouseCursor", "General")]
+    public static bool UseGameMouseCursor { get; set; } = false;
 
     private ICommandManager _commandManager;
 
@@ -129,6 +132,7 @@ internal sealed class UmbraBindings : IDisposable
         Node.UseThreadedStyleComputation = UseThreadedStyleComputation;
 
         Framework.SetSchedulerHitchWarnings(EnableHitchWarnings, TickHitchThresholdMs, DrawHitchThresholdMs);
+        Framework.DalamudPlugin.UiBuilder.OverrideGameCursor = !UseGameMouseCursor;
     }
 
     private void HandleUmbraCommand(string command, string args)

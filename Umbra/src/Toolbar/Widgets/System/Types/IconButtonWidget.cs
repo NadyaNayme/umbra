@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Dalamud.Interface;
+using Umbra.Common;
 using Umbra.Style;
 using Umbra.Widgets.System;
 using Una.Drawing;
@@ -21,14 +22,7 @@ internal abstract class IconToolbarWidget(
                 Id        = "Icon",
                 NodeValue = FontAwesomeIcon.Ankh.ToIconString(),
             },
-        ],
-        BeforeDraw = (node) => {
-            node.Style.Size = new(SafeHeight, SafeHeight);
-
-            var iconNode = node.FindById("Icon");
-            iconNode!.Style.Size     = new(SafeHeight - 2, SafeHeight - 2);
-            iconNode!.Style.FontSize = (SafeHeight - 2) / 2;
-        }
+        ]
     };
 
     protected void SetIcon(FontAwesomeIcon icon)
@@ -39,8 +33,7 @@ internal abstract class IconToolbarWidget(
 
     protected void SetGhost(bool ghost)
     {
-        switch (ghost)
-        {
+        switch (ghost) {
             case true when !Node.TagsList.Contains("ghost"):
                 Node.TagsList.Add("ghost");
                 break;
@@ -59,4 +52,35 @@ internal abstract class IconToolbarWidget(
     {
         Node.QuerySelector("#Icon")!.Style.TextOffset = new(0, offset);
     }
+
+    protected override void OnUpdate()
+    {
+        bool isGhost = !GetConfigValue<bool>("Decorate");
+
+        SetIconYOffset(GetConfigValue<int>("IconYOffset"));
+        SetGhost(isGhost);
+
+        Node.Style.Size         = new(isGhost ? 0 : SafeHeight, SafeHeight);
+        IconNode.Style.Size     = new(isGhost ? 0 : SafeHeight - 2, SafeHeight - 2);
+        IconNode.Style.FontSize = (SafeHeight) / 2;
+    }
+
+    protected Node IconNode => Node.FindById("Icon")!;
+
+    protected IEnumerable<IWidgetConfigVariable> DefaultIconToolbarWidgetConfigVariables => [
+        new BooleanWidgetConfigVariable(
+            "Decorate",
+            I18N.Translate("Widgets.IconButtonWidget.Config.Decorate.Name"),
+            I18N.Translate("Widgets.IconButtonWidget.Config.Decorate.Description"),
+            true
+        ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
+        new IntegerWidgetConfigVariable(
+            "IconYOffset",
+            I18N.Translate("Widgets.IconButtonWidget.Config.IconYOffset.Name"),
+            I18N.Translate("Widgets.IconButtonWidget.Config.IconYOffset.Description"),
+            -1,
+            -5,
+            5
+        ) { Category = I18N.Translate("Widget.ConfigCategory.WidgetAppearance") },
+    ];
 }

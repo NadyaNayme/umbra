@@ -23,23 +23,53 @@ internal partial class AuxWidgetsModule : SettingsModule
         }
     }
 
+    protected override void OnDisposed()
+    {
+        WidgetManager wm = Framework.Service<WidgetManager>();
+
+        wm.OnWidgetCreated -= OnWidgetInstanceCreated;
+        wm.OnWidgetRemoved -= OnWidgetInstanceRemoved;
+    }
+
     /// <inheritdoc/>
     public override void OnOpen()
     {
-        AuxEnabledNode.Value   = Toolbar.AuxBarEnabled;
-        AuxDecorateNode.Value  = Toolbar.AuxBarDecorate;
-        AuxShadowNode.Value    = Toolbar.AuxEnableShadow;
-        AuxXAlignNode.Value    = Toolbar.AuxBarXAlign;
-        AuxXPositionNode.Value = Toolbar.AuxBarXPos;
-        AuxYPositionNode.Value = Toolbar.AuxBarYPos;
+        AuxEnabledNode.Value               = Toolbar.AuxBarEnabled;
+        AuxDecorateNode.Value              = Toolbar.AuxBarDecorate;
+        AuxShadowNode.Value                = Toolbar.AuxEnableShadow;
+        AuxXAlignNode.Value                = Toolbar.AuxBarXAlign;
+        AuxXPositionNode.Value             = Toolbar.AuxBarXPos;
+        AuxYPositionNode.Value             = Toolbar.AuxBarYPos;
+        AuxHoldKeyNode.Value               = Toolbar.AuxBarHoldKey;
+        AuxHideInCutscenesNode.Value       = Toolbar.AuxBarHideInCutscenes;
+        AuxHideInPvPNode.Value             = Toolbar.AuxBarHideInPvP;
+        AuxHideInDutyNode.Value            = Toolbar.AuxBarHideInDuty;
+        AuxHideInCombatNode.Value          = Toolbar.AuxBarHideInCombat;
+        AuxConditionalVisibilityNode.Value = Toolbar.AuxBarIsConditionallyVisible;
+        AuxShowInCutsceneNode.Value        = Toolbar.AuxBarShowInCutscene;
+        AuxShowInGPoseNode.Value           = Toolbar.AuxBarShowInGPose;
+        AuxShowInInstanceNode.Value        = Toolbar.AuxBarShowInInstance;
+        AuxShowInCombatNode.Value          = Toolbar.AuxBarShowInCombat;
+        AuxShowUnsheathedNode.Value        = Toolbar.AuxBarShowUnsheathed;
 
-        AuxEnabledNode.OnValueChanged   += OnEnabledChanged;
-        AuxDecorateNode.OnValueChanged  += OnDecorateChanged;
-        AuxShadowNode.OnValueChanged    += OnShadowChanged;
-        AuxXAlignNode.OnValueChanged    += OnXAlignChanged;
-        AuxXPositionNode.OnValueChanged += OnXPositionChanged;
-        AuxYPositionNode.OnValueChanged += OnYPositionChanged;
-        AuxWidgetAddNode.OnMouseUp      += ShowAddWidgetWindow;
+        AuxEnabledNode.OnValueChanged               += OnEnabledChanged;
+        AuxDecorateNode.OnValueChanged              += OnDecorateChanged;
+        AuxShadowNode.OnValueChanged                += OnShadowChanged;
+        AuxXAlignNode.OnValueChanged                += OnXAlignChanged;
+        AuxXPositionNode.OnValueChanged             += OnXPositionChanged;
+        AuxYPositionNode.OnValueChanged             += OnYPositionChanged;
+        AuxWidgetAddNode.OnMouseUp                  += ShowAddWidgetWindow;
+        AuxHideInCutscenesNode.OnValueChanged       += HideInCutscenesChanged;
+        AuxHideInPvPNode.OnValueChanged             += HideInPvPChanged;
+        AuxHideInDutyNode.OnValueChanged            += AuxHideInDutyChanged;
+        AuxHideInCombatNode.OnValueChanged          += AuxHideInCombatChanged;
+        AuxConditionalVisibilityNode.OnValueChanged += OnConditionalVisibilityChanged;
+        AuxHoldKeyNode.OnValueChanged               += AuxHoldKeyChanged;
+        AuxShowInCutsceneNode.OnValueChanged        += ShowInCutsceneChanged;
+        AuxShowInGPoseNode.OnValueChanged           += ShowInGPoseChanged;
+        AuxShowInInstanceNode.OnValueChanged        += ShowInInstanceChanged;
+        AuxShowInCombatNode.OnValueChanged          += ShowInCombatChanged;
+        AuxShowUnsheathedNode.OnValueChanged        += ShowUnsheathedChanged;
     }
 
     /// <inheritdoc/>
@@ -51,13 +81,24 @@ internal partial class AuxWidgetsModule : SettingsModule
     /// <inheritdoc/>
     public override void OnClose()
     {
-        AuxEnabledNode.OnValueChanged   -= OnEnabledChanged;
-        AuxDecorateNode.OnValueChanged  -= OnDecorateChanged;
-        AuxShadowNode.OnValueChanged    -= OnShadowChanged;
-        AuxXAlignNode.OnValueChanged    -= OnXAlignChanged;
-        AuxXPositionNode.OnValueChanged -= OnXPositionChanged;
-        AuxYPositionNode.OnValueChanged -= OnYPositionChanged;
-        AuxWidgetAddNode.OnMouseUp      -= ShowAddWidgetWindow;
+        AuxEnabledNode.OnValueChanged               -= OnEnabledChanged;
+        AuxDecorateNode.OnValueChanged              -= OnDecorateChanged;
+        AuxShadowNode.OnValueChanged                -= OnShadowChanged;
+        AuxXAlignNode.OnValueChanged                -= OnXAlignChanged;
+        AuxXPositionNode.OnValueChanged             -= OnXPositionChanged;
+        AuxYPositionNode.OnValueChanged             -= OnYPositionChanged;
+        AuxWidgetAddNode.OnMouseUp                  -= ShowAddWidgetWindow;
+        AuxHideInCutscenesNode.OnValueChanged       -= HideInCutscenesChanged;
+        AuxHideInPvPNode.OnValueChanged             -= HideInPvPChanged;
+        AuxHideInDutyNode.OnValueChanged            -= AuxHideInDutyChanged;
+        AuxHideInCombatNode.OnValueChanged          -= AuxHideInCombatChanged;
+        AuxConditionalVisibilityNode.OnValueChanged -= OnConditionalVisibilityChanged;
+        AuxHoldKeyNode.OnValueChanged               -= AuxHoldKeyChanged;
+        AuxShowInCutsceneNode.OnValueChanged        -= ShowInCutsceneChanged;
+        AuxShowInGPoseNode.OnValueChanged           -= ShowInGPoseChanged;
+        AuxShowInInstanceNode.OnValueChanged        -= ShowInInstanceChanged;
+        AuxShowInCombatNode.OnValueChanged          -= ShowInCombatChanged;
+        AuxShowUnsheathedNode.OnValueChanged        -= ShowUnsheathedChanged;
     }
 
     private static void OnEnabledChanged(bool value)
@@ -117,5 +158,60 @@ internal partial class AuxWidgetsModule : SettingsModule
 
         Node? node = AuxWidgetsListNode.QuerySelector($"#widget-{widget.Id}");
         if (node is not null) AuxWidgetsListNode.RemoveChild(node);
+    }
+
+    private static void HideInCutscenesChanged(bool value)
+    {
+        ConfigManager.Set("Toolbar.AuxBar.HideInCutscenes", value);
+    }
+
+    private static void HideInPvPChanged(bool value)
+    {
+        ConfigManager.Set("Toolbar.AuxBar.HideInPvP", value);
+    }
+
+    private static void AuxHideInDutyChanged(bool value)
+    {
+        ConfigManager.Set("Toolbar.AuxBar.HideInDuty", value);
+    }
+
+    private static void AuxHideInCombatChanged(bool value)
+    {
+        ConfigManager.Set("Toolbar.AuxBar.HideInCombat", value);
+    }
+
+    private static void OnConditionalVisibilityChanged(bool value)
+    {
+        ConfigManager.Set("Toolbar.AuxBar.IsConditionallyVisible", value);
+    }
+
+    private static void AuxHoldKeyChanged(string value)
+    {
+        ConfigManager.Set("Toolbar.AuxBar.HoldKey", value);
+    }
+
+    private static void ShowInCutsceneChanged(bool value)
+    {
+        ConfigManager.Set("Toolbar.AuxBar.ShowInCutscene", value);
+    }
+
+    private static void ShowInGPoseChanged(bool value)
+    {
+        ConfigManager.Set("Toolbar.AuxBar.ShowInGPose", value);
+    }
+
+    private static void ShowInInstanceChanged(bool value)
+    {
+        ConfigManager.Set("Toolbar.AuxBar.ShowInInstance", value);
+    }
+
+    private static void ShowInCombatChanged(bool value)
+    {
+        ConfigManager.Set("Toolbar.AuxBar.ShowInCombat", value);
+    }
+
+    private static void ShowUnsheathedChanged(bool value)
+    {
+        ConfigManager.Set("Toolbar.AuxBar.ShowUnsheathed", value);
     }
 }
